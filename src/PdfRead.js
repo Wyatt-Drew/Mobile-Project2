@@ -4,39 +4,37 @@ import Pdf from '../libraries/react-native-pdf';
 
 // Scrollbar component
 const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll }) => {
-  // Calculate scrollbar height based on total content height vs visible content
   const scrollbarHeight = totalHeight > visibleHeight
     ? (visibleHeight * (visibleHeight / totalHeight))
     : visibleHeight;
 
-  // Create a pan animation to handle drag interaction
   const pan = useRef(new Animated.Value(0)).current;
 
-  // PanResponder to handle dragging of the scrollbar
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onPanResponderMove: (e, gestureState) => {
-      // Calculate the new scroll position based on scrollbar drag
+      const maxScrollPosition = totalHeight - visibleHeight;
+
+      if (!totalHeight || !visibleHeight) return;
+
+      const dragProportion = gestureState.moveY / visibleHeight;
       const newScrollPosition = Math.max(
         0,
-        Math.min((gestureState.moveY / visibleHeight) * totalHeight, totalHeight - visibleHeight)
+        Math.min(dragProportion * maxScrollPosition, maxScrollPosition)
       );
-      onScroll(newScrollPosition);  // Move the PDF based on scrollbar drag
+
+      onScroll(newScrollPosition);
     },
   });
 
-  // Effect to update the scrollbar position when the PDF scrolls
   useEffect(() => {
-    // Reverse the scrollPosition (since Y becomes negative as we scroll down)
-    const clampedScrollPosition = Math.abs(scrollPosition);
-    
-    const scrollbarPosition = (clampedScrollPosition / totalHeight) * visibleHeight;
+    const maxScrollPosition = totalHeight - visibleHeight;
+    const scrollbarPosition = (scrollPosition / maxScrollPosition) * (visibleHeight - scrollbarHeight);
 
     if (!isNaN(scrollbarPosition)) {
-      // Smoothly animate the scrollbar as the PDF is scrolled
       Animated.timing(pan, {
         toValue: scrollbarPosition,
-        duration: 0,  // Set to 0 for instant response
+        duration: 0,
         useNativeDriver: false,
       }).start();
     }
@@ -57,8 +55,9 @@ const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll }) => 
 const PdfRead = ({ route }) => {
   const { pdfUri } = route.params;
   const pdfRef = useRef(null);
-  const [numberOfPages, setNumberOfPages] = useState(0);
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 });
+  const [maxScrollY, setMaxScrollY] = useState(0);
+  const [isMaxScrollCaptured, setIsMaxScrollCaptured] = useState(false);
 
   const windowHeight = Dimensions.get('window').height;
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 20;
@@ -66,27 +65,46 @@ const PdfRead = ({ route }) => {
 
   // Handle scroll position change in PDF
   const handleScroll = (x, y) => {
-    console.log(`PDF scrolled to X: ${x}, Y: ${y}`);
-    setScrollPosition({ x, y });
+    const normalizedScrollY = Math.max(0, Math.abs(y));
+    setScrollPosition({ x, y: normalizedScrollY });
+
+    if (!isMaxScrollCaptured) {
+      setMaxScrollY(normalizedScrollY);
+    }
   };
 
-  // Handle load completion to get number of pages in PDF
-  const onLoadComplete = (numPages) => {
-    setNumberOfPages(numPages);
-    console.log(`PDF loaded with ${numPages} pages`);
+  // Capture max Y position by scrolling to bottom and then back to top
+  const captureMaxScrollY = () => {
+    if (pdfRef.current) {
+      // First, scroll to the bottom
+      pdfRef.current.moveTo(0, -99999, 1); // A large negative Y value to simulate scrolling to the bottom
+
+      setTimeout(() => {
+        // Scroll back to the top after capturing the maximum Y
+        pdfRef.current.moveTo(0, 0, 1);
+        setIsMaxScrollCaptured(true);
+      }, 1000); // Give enough time to capture the max scroll
+    }
+  };
+
+  // Handle load completion to trigger the scroll-to-bottom process
+  const onLoadComplete = () => {
+    captureMaxScrollY(); // Start the process to capture max scroll
   };
 
   // Handle scrollbar scrolling - move the PDF based on scrollbar drag
   const handleScrollbarScroll = (newPosition) => {
+    if (!isMaxScrollCaptured) return;
+
+    const scrollRatio = newPosition / maxScrollY;
+    const newY = Math.ceil(scrollRatio * maxScrollY);
+
     if (pdfRef.current) {
-      // Calculate which page to move to based on the scrollbar position
-      const newPage = Math.ceil(newPosition / usableHeight) + 1;
-      pdfRef.current.setPage(newPage);
+      pdfRef.current.moveTo(0, -newY, 1);
     }
   };
 
-  // Show PDF and Scrollbar only after PDF is loaded
-  if (numberOfPages === 0) {
+  if (!isMaxScrollCaptured) {
     return (
       <View style={styles.container}>
         <Pdf
@@ -95,6 +113,7 @@ const PdfRead = ({ route }) => {
           style={styles.pdf}
           onLoadComplete={onLoadComplete}
           onError={(error) => console.log(`PDF Error: ${error}`)}
+          onScroll={(x, y) => handleScroll(x, y)}
         />
       </View>
     );
@@ -108,14 +127,13 @@ const PdfRead = ({ route }) => {
         style={styles.pdf}
         onLoadComplete={onLoadComplete}
         onError={(error) => console.log(`PDF Error: ${error}`)}
-        onPageChanged={(page, numberOfPages) => console.log(`Page changed to ${page} of ${numberOfPages}`)}
         onScroll={(x, y) => handleScroll(x, y)}
       />
       <Scrollbar
-        scrollPosition={scrollPosition.y} // Current Y scroll position of PDF
-        totalHeight={numberOfPages * usableHeight} // Total height based on number of pages
-        visibleHeight={usableHeight} // Height of the visible PDF area
-        onScroll={handleScrollbarScroll} // Function to scroll PDF when scrollbar is dragged
+        scrollPosition={scrollPosition.y}
+        totalHeight={maxScrollY}
+        visibleHeight={usableHeight}
+        onScroll={handleScrollbarScroll}
       />
     </View>
   );
@@ -130,11 +148,11 @@ const styles = StyleSheet.create({
   },
   pdf: {
     flex: 1,
-    width: Dimensions.get('window').width - 20,  // Leave space for the scrollbar
+    width: Dimensions.get('window').width - 20,
     backgroundColor: '#f0f0f0',
   },
   scrollbar: {
-    width: 10,  // Width of the scrollbar
+    width: 10,
     backgroundColor: 'rgba(0,0,0,0.5)',
     borderRadius: 5,
     position: 'absolute',
