@@ -6,10 +6,11 @@ const StartScreen = ({ navigation }) => {
   const [selectedLandmarkType, setSelectedLandmarkType] = useState('');
 
   const pdfOptions = [
-    { label: 'IRS W-4 Form', value: 'https://www.irs.gov/pub/irs-pdf/fw4.pdf' },
-    { label: 'Sample PDF', value: 'https://pdfobject.com/pdf/sample.pdf' },
-    { label: '25 Page Test', value: 'https://raw.githubusercontent.com/Wyatt-Drew/Mobile-Project/main/assets/pdf/25PageTest.pdf' },
-    { label: '44 Page Test', value: 'https://raw.githubusercontent.com/Wyatt-Drew/Mobile-Project/main/assets/pdf/44PageTest.pdf' },
+    { label: 'a Page Test', value: 'https://www.uregina.ca/oir/assets/budget/comprehensive/2024-25-cbp.pdf' },
+    { label: '2 Page Test', value: 'https://www.uregina.ca/financial-services/assets/budget-assets/2024-25-budget-docs/2024-03-22-budget-town-hall.pdf' },
+    { label: '25 Page Test', value: 'https://drive.google.com/file/d/1U6fprZIV3bEj4GL8NytG4n_u3yuCSjCk/view?usp=sharing' },
+    { label: '44 Page Test', value: 'https://drive.google.com/file/d/1ZjBk0-Dy3TdvV-Vosfrps4gWovQLAVIX/view?usp=sharing' },
+
   ];
 
   const landmarkTypes = [
