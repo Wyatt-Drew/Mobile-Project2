@@ -1,51 +1,8 @@
-import { View, StyleSheet, Dimensions, StatusBar, Platform, Animated, PanResponder, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Dimensions, StatusBar, Platform, TouchableOpacity } from 'react-native';
 import React, { useRef, useState, useEffect } from 'react';
 import Pdf from '../libraries/react-native-pdf';
 import { renderLandmark } from './LandmarkRenderer'; // Ensure this import is correct
-
-// Scrollbar component
-const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll }) => {
-  const scrollbarVisibleHeight = visibleHeight * 0.8; // Only 80% of the visible height
-  const scrollbarHeight = totalHeight > scrollbarVisibleHeight
-    ? (scrollbarVisibleHeight * (scrollbarVisibleHeight / totalHeight))  // Proportional height
-    : scrollbarVisibleHeight;
-
-  const pan = useRef(new Animated.Value(0)).current;
-
-  const panResponder = PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onPanResponderMove: (e, gestureState) => {
-      const maxScrollPosition = totalHeight - scrollbarVisibleHeight;
-      if (!totalHeight || !scrollbarVisibleHeight || maxScrollPosition <= 0) return;
-
-      const dragProportion = (gestureState.moveY - gestureState.y0) / scrollbarVisibleHeight;
-      const newScrollPosition = Math.max(0, Math.min(dragProportion * maxScrollPosition, maxScrollPosition));
-
-      onScroll(newScrollPosition);
-    },
-  });
-
-  useEffect(() => {
-    const maxScrollPosition = totalHeight - scrollbarVisibleHeight;
-    if (!totalHeight || !scrollbarVisibleHeight || maxScrollPosition <= 0) return;
-
-    const scrollbarPosition = (scrollPosition / maxScrollPosition) * (scrollbarVisibleHeight - scrollbarHeight);
-    if (!isNaN(scrollbarPosition)) {
-      Animated.timing(pan, {
-        toValue: scrollbarPosition,
-        duration: 0,
-        useNativeDriver: false,
-      }).start();
-    }
-  }, [scrollPosition, totalHeight, scrollbarVisibleHeight]);
-
-  return (
-    <Animated.View
-      {...panResponder.panHandlers}
-      style={[styles.scrollbar, { height: scrollbarHeight, top: 0, transform: [{ translateY: pan }] }]}
-    />
-  );
-};
+import Scrollbar from './Scrollbar'; // Import Scrollbar component
 
 const PdfRead = ({ route }) => {
   const { pdfUri, landmarkType } = route.params;
@@ -58,7 +15,6 @@ const PdfRead = ({ route }) => {
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 20;
   const usableHeight = windowHeight - statusBarHeight;
 
-  // Handle scroll position change in PDF
   const handleScroll = (x, y) => {
     const normalizedScrollY = Math.max(0, Math.abs(y));
     setScrollPosition({ x, y: normalizedScrollY });
@@ -175,12 +131,5 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     height: Dimensions.get('window').height,
     padding: 10,
-  },
-  scrollbar: {
-    position: 'absolute',
-    right: 10,
-    width: 15,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 5,
   },
 });
