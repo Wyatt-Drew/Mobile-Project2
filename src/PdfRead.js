@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 10,
     justifyContent: 'space-around',
-    height: Dimensions.get('window').height,
+    height: Dimensions.get('window').height * 0.8,
     padding: 10,
   },
 });
