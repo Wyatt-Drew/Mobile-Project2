@@ -40,12 +40,13 @@ const PdfRead = ({ route }) => {
     captureMaxScrollY();
   };
 
+  // Refactor scrollToSection to scroll to the center of each section
   const scrollToSection = (index) => {
     if (!isMaxScrollCaptured || !maxScrollY) return;
     const sectionHeight = maxScrollY / 10;
-    const targetScrollY = index * sectionHeight;
+    const targetScrollY = index * sectionHeight + sectionHeight / 2; // Scroll to the midpoint of each section
     if (pdfRef.current) {
-      pdfRef.current.moveTo(0, -targetScrollY, 1); // Scroll to the section
+      pdfRef.current.moveTo(0, -targetScrollY, 1); // Scroll to the midpoint of the section
     }
   };
 
