@@ -6,19 +6,21 @@ const StartScreen = ({ navigation }) => {
   const [selectedLandmarkType, setSelectedLandmarkType] = useState('');
 
   const pdfOptions = [
-    { label: 'a Page Test', value: 'https://www.uregina.ca/oir/assets/budget/comprehensive/2024-25-cbp.pdf' },
-    { label: '2 Page Test', value: 'https://www.uregina.ca/financial-services/assets/budget-assets/2024-25-budget-docs/2024-03-22-budget-town-hall.pdf' },
-    { label: '25 Page Test', value: 'https://drive.google.com/file/d/1U6fprZIV3bEj4GL8NytG4n_u3yuCSjCk/view?usp=sharing' },
-    { label: '44 Page Test', value: 'https://drive.google.com/file/d/1ZjBk0-Dy3TdvV-Vosfrps4gWovQLAVIX/view?usp=sharing' },
-
+    { label: 'PDF 1', value: 'https://www.uregina.ca/oir/assets/budget/comprehensive/2024-25-cbp.pdf' },
+    { label: 'PDF 2', value: 'https://www.uregina.ca/financial-services/assets/budget-assets/2024-25-budget-docs/2024-03-22-budget-town-hall.pdf' },
+    { label: 'PDF 3', value: 'https://drive.google.com/file/d/1U6fprZIV3bEj4GL8NytG4n_u3yuCSjCk/view?usp=sharing' },
+    { label: 'PDF 4', value: 'https://drive.google.com/file/d/1ZjBk0-Dy3TdvV-Vosfrps4gWovQLAVIX/view?usp=sharing' },
+    { label: 'PDF 5', value: 'a' },
+    { label: 'PDF 6', value: 'b' },
   ];
 
   const landmarkTypes = [
+    { label: 'No Icons', value: 'None' },
     { label: 'Numbers (1-10)', value: 'Numbers' },
     { label: 'Letters (A-J)', value: 'Letters' },
     { label: 'Icons (Default)', value: 'Icons' },
     { label: 'Color Icons', value: 'ColorIcons' },
-    { label: 'No Icons', value: 'None' },
+    { label: 'Thumbnails', value: 'Potato' },
   ];
 
   const beginReading = () => {
