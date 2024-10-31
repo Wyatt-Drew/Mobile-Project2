@@ -128,9 +128,9 @@ const styles = StyleSheet.create({
   landmarkContainer: {
     position: 'absolute',
     top: 0,
-    left: 10,
+    right: 10,
     justifyContent: 'space-around',
-    height: Dimensions.get('window').height * 0.8,
+    height: Dimensions.get('window').height * 0.9,
     padding: 10,
   },
 });

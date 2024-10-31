@@ -15,17 +15,36 @@ const customIcons = [
 ];
 
 const customIconsColor = [
-  require('../assets/icons/boat-color.png'),
-  require('../assets/icons/diamond-color.png'),
-  require('../assets/icons/clock-color.png'),
-  require('../assets/icons/heart-color.png'),
-  require('../assets/icons/crown-color.png'),
-  require('../assets/icons/liberty-color.png'),
-  require('../assets/icons/rook-color.png'),
-  require('../assets/icons/dolphin-color.png'),
-  require('../assets/icons/idea-color.png'),
-  require('../assets/icons/graduate-color.png'),
+
+  require('../assets/icons/home.png'),
+  require('../assets/icons/blue-screen.png'),
+  require('../assets/icons/butterfly.png'),
+
+  require('../assets/icons/sunny.png'),
+  require('../assets/icons/star.png'),
+
+  require('../assets/icons/fruit.png'),
+  require('../assets/icons/green-energy.png'),
+  require('../assets/icons/cabbage.png'),
+
+  require('../assets/icons/dice.png'),
+  require('../assets/icons/french-fries.png'),
+
 ];
+
+
+// const customIconsColor = [
+//   require('../assets/icons/boat-color.png'),
+//   require('../assets/icons/diamond-color.png'),
+//   require('../assets/icons/clock-color.png'),
+//   require('../assets/icons/heart-color.png'),
+//   require('../assets/icons/crown-color.png'),
+//   require('../assets/icons/liberty-color.png'),
+//   require('../assets/icons/rook-color.png'),
+//   require('../assets/icons/dolphin-color.png'),
+//   require('../assets/icons/idea-color.png'),
+//   require('../assets/icons/graduate-color.png'),
+// ];
 
 export const LandmarkType = {
   NUMBERS: 'Numbers',
