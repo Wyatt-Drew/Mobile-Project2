@@ -8,10 +8,9 @@ const StartScreen = ({ navigation }) => {
   const pdfOptions = [
     { label: 'PDF 1', value: 'https://www.uregina.ca/oir/assets/budget/comprehensive/2024-25-cbp.pdf' },
     { label: 'PDF 2', value: 'https://www.uregina.ca/financial-services/assets/budget-assets/2024-25-budget-docs/2024-03-22-budget-town-hall.pdf' },
-    { label: 'PDF 3', value: 'https://drive.google.com/file/d/1U6fprZIV3bEj4GL8NytG4n_u3yuCSjCk/view?usp=sharing' },
-    { label: 'PDF 4', value: 'https://drive.google.com/file/d/1ZjBk0-Dy3TdvV-Vosfrps4gWovQLAVIX/view?usp=sharing' },
-    { label: 'PDF 5', value: 'a' },
-    { label: 'PDF 6', value: 'b' },
+    { label: 'PDF 3', value: 'https://drive.google.com/uc?export=download&id=1U6fprZIV3bEj4GL8NytG4n_u3yuCSjCk' },
+    { label: 'PDF 4', value: 'https://drive.google.com/uc?export=download&id=1ZjBk0-Dy3TdvV-Vosfrps4gWovQLAVIX' },
+    { label: 'Local PDF', value: require('../assets/pdf/25PageTest.pdf') },
   ];
 
   const landmarkTypes = [

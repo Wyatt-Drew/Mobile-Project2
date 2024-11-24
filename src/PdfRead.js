@@ -15,6 +15,11 @@ const PdfRead = ({ route }) => {
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 20;
   const usableHeight = windowHeight - statusBarHeight;
 
+  // Determine the source type: remote or local
+  const source = typeof pdfUri === 'string' 
+    ? { uri: pdfUri, cache: true } // Remote file
+    : pdfUri; // Local file (require)
+
   const handleScroll = (x, y) => {
     const normalizedScrollY = Math.max(0, Math.abs(y));
     setScrollPosition({ x, y: normalizedScrollY });
@@ -40,7 +45,6 @@ const PdfRead = ({ route }) => {
     captureMaxScrollY();
   };
 
-  // Refactor scrollToSection to scroll to the center of each section
   const scrollToSection = (index) => {
     if (!isMaxScrollCaptured || !maxScrollY) return;
     const sectionHeight = maxScrollY / 10;
@@ -71,12 +75,13 @@ const PdfRead = ({ route }) => {
     return (
       <View style={styles.container}>
         <Pdf
+          trustAllCerts={false}
           ref={pdfRef}
-          source={{ uri: pdfUri, cache: true }}
+          source={source}
           style={styles.pdf}
           onLoadComplete={onLoadComplete}
           onError={(error) => console.log(`PDF Error: ${error}`)}
-          onScroll={(x, y) => handleScroll(x, y)}  // Handle the onScroll Y values
+          onScroll={(x, y) => handleScroll(x, y)} // Handle the onScroll Y values
         />
       </View>
     );
@@ -86,7 +91,7 @@ const PdfRead = ({ route }) => {
     <View style={styles.container}>
       <Pdf
         ref={pdfRef}
-        source={{ uri: pdfUri, cache: true }}
+        source={source}
         style={styles.pdf}
         onLoadComplete={onLoadComplete}
         onError={(error) => console.log(`PDF Error: ${error}`)}
@@ -105,7 +110,7 @@ const PdfRead = ({ route }) => {
       {/* Scrollbar */}
       <Scrollbar
         scrollPosition={scrollPosition.y}
-        totalHeight={maxScrollY + usableHeight} 
+        totalHeight={maxScrollY + usableHeight}
         visibleHeight={usableHeight}
         onScroll={handleScrollbarScroll}
       />
