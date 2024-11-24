@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { Animated, PanResponder, StyleSheet } from 'react-native';
 
 const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll }) => {
-  const scrollbarVisibleHeight = visibleHeight * 0.9; // Only 80% of the visible height
+  const scrollbarVisibleHeight = visibleHeight * 0.8; // Only 80% of the visible height
   const scrollbarHeight = totalHeight > scrollbarVisibleHeight
     ? (scrollbarVisibleHeight * (scrollbarVisibleHeight / totalHeight))  // Proportional height
     : scrollbarVisibleHeight;
