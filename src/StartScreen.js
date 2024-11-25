@@ -6,7 +6,7 @@ const StartScreen = ({ navigation }) => {
   const [selectedLandmarkType, setSelectedLandmarkType] = useState('');
 
   const pdfOptions = [
-    { label: 'PDF1', value: require('../assets/pdf/PDF1.pdf') },
+    // { label: 'PDF1', value: require('../assets/pdf/PDF1.pdf') },
     { label: 'PDF2', value: require('../assets/pdf/PDF2.pdf') },
     { label: 'PDF3', value: require('../assets/pdf/PDF3.pdf') },
     { label: 'PDF4', value: require('../assets/pdf/PDF4.pdf') },
@@ -20,7 +20,7 @@ const StartScreen = ({ navigation }) => {
     { label: 'Letters (A-J)', value: 'Letters' },
     { label: 'Icons (Default)', value: 'Icons' },
     { label: 'Color Icons', value: 'ColorIcons' },
-    { label: 'Thumbnails', value: 'Potato' },
+    // { label: 'Thumbnails', value: 'Thumbnails' },
   ];
 
   const beginReading = () => {
