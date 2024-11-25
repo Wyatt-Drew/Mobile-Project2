@@ -23,10 +23,15 @@ const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll }) => 
   });
 
   useEffect(() => {
-    const maxScrollPosition = totalHeight - scrollbarVisibleHeight;
-    if (!totalHeight || !scrollbarVisibleHeight || maxScrollPosition <= 0) return;
-
-    const scrollbarPosition = (scrollPosition / maxScrollPosition) * (scrollbarVisibleHeight - scrollbarHeight);
+    const maxScrollPosition = totalHeight - visibleHeight; // Full scrollable range of the content
+    const maxScrollbarMovement = scrollbarVisibleHeight - scrollbarHeight; // Scrollbar movement range
+  
+    if (!totalHeight || !visibleHeight || maxScrollbarMovement <= 0) return;
+  
+    // Calculate the scrollbar's position based on the content's scroll position
+    const scrollbarPosition =
+      (scrollPosition / maxScrollPosition) * maxScrollbarMovement;
+  
     if (!isNaN(scrollbarPosition)) {
       Animated.timing(pan, {
         toValue: scrollbarPosition,
@@ -34,7 +39,7 @@ const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll }) => 
         useNativeDriver: false,
       }).start();
     }
-  }, [scrollPosition, totalHeight, scrollbarVisibleHeight]);
+  }, [scrollPosition, totalHeight, visibleHeight, scrollbarVisibleHeight, scrollbarHeight]);
 
   return (
     <Animated.View

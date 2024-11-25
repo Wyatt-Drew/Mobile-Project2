@@ -47,8 +47,8 @@ const PdfRead = ({ route }) => {
 
   const scrollToSection = (index) => {
     if (!isMaxScrollCaptured || !maxScrollY) return;
-    const sectionHeight = maxScrollY  / 10;
-    const targetScrollY = (index + 0.5) * sectionHeight; // Scroll to the midpoint of each section
+    const sectionHeight = (maxScrollY + usableHeight) / 10;
+    const targetScrollY = (index + 0.5) * sectionHeight ; // Scroll to the midpoint of each section
     if (pdfRef.current) {
       pdfRef.current.moveTo(0, -targetScrollY, 1); // Scroll to the midpoint of the section
     }
