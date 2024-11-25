@@ -55,10 +55,17 @@ const PdfRead = ({ route }) => {
   };
 
   const getIconOpacity = (index) => {
+    if (!isMaxScrollCaptured || maxScrollY === 0) return 0.3; // Default low opacity if max scroll is not captured
+  
     const sectionHeight = maxScrollY / 10;
-    const activeSection = scrollPosition.y / sectionHeight;
-    const opacity = Math.abs(activeSection - index) < 0.5 ? 1 : 0.3; // Adjust opacity based on proximity
-    return opacity;
+    const sectionMidpoint = index * sectionHeight + sectionHeight / 2; // Midpoint of the current section
+    const distanceFromMidpoint = Math.abs(scrollPosition.y - sectionMidpoint);
+  
+    // Define a threshold for full opacity (e.g., closer than half a section height)
+    const fullOpacityThreshold = sectionHeight / 2;
+  
+    // Calculate opacity: closer to midpoint = higher opacity
+    return distanceFromMidpoint <= fullOpacityThreshold ? 1 : 0.3;
   };
 
   const handleScrollbarScroll = (newPosition) => {

@@ -54,4 +54,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     borderRadius: 5,
   },
+  arrow: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 20,
+    height: 20,
+  },
+  arrowText: {
+    fontSize: 12,
+    color: 'rgba(0, 0, 0, 0.8)',
+  },
 });
