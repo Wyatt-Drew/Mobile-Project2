@@ -6,11 +6,12 @@ const StartScreen = ({ navigation }) => {
   const [selectedLandmarkType, setSelectedLandmarkType] = useState('');
 
   const pdfOptions = [
-    { label: 'PDF 1', value: 'https://www.uregina.ca/oir/assets/budget/comprehensive/2024-25-cbp.pdf' },
-    { label: 'PDF 2', value: 'https://www.uregina.ca/financial-services/assets/budget-assets/2024-25-budget-docs/2024-03-22-budget-town-hall.pdf' },
-    { label: 'PDF 3', value: 'https://drive.google.com/uc?export=download&id=1U6fprZIV3bEj4GL8NytG4n_u3yuCSjCk' },
-    { label: 'PDF 4', value: 'https://drive.google.com/uc?export=download&id=1ZjBk0-Dy3TdvV-Vosfrps4gWovQLAVIX' },
-    { label: 'Local PDF', value: require('../assets/pdf/25PageTest.pdf') },
+    { label: 'PDF1', value: require('../assets/pdf/PDF1.pdf') },
+    { label: 'PDF2', value: require('../assets/pdf/PDF2.pdf') },
+    { label: 'PDF3', value: require('../assets/pdf/PDF3.pdf') },
+    { label: 'PDF4', value: require('../assets/pdf/PDF4.pdf') },
+    { label: 'PDF5', value: require('../assets/pdf/PDF5.pdf') },
+    { label: 'PDF6', value: require('../assets/pdf/PDF6.pdf') },
   ];
 
   const landmarkTypes = [
