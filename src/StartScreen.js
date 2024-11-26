@@ -6,12 +6,12 @@ const StartScreen = ({ navigation }) => {
   const [selectedLandmarkType, setSelectedLandmarkType] = useState('');
 
   const pdfOptions = [
-    // { label: 'PDF1', value: require('../assets/pdf/PDF1.pdf') },
-    { label: 'PDF2', value: require('../assets/pdf/PDF2.pdf') },
-    { label: 'PDF3', value: require('../assets/pdf/PDF3.pdf') },
-    { label: 'PDF4', value: require('../assets/pdf/PDF4.pdf') },
-    { label: 'PDF5', value: require('../assets/pdf/PDF5.pdf') },
-    { label: 'PDF6', value: require('../assets/pdf/PDF6.pdf') },
+    { label: 'PDF1', value: require('../assets/pdf/PDF1.pdf') },
+    // { label: 'PDF2', value: require('../assets/pdf/PDF2.pdf') },
+    // { label: 'PDF3', value: require('../assets/pdf/PDF3.pdf') },
+    // { label: 'PDF4', value: require('../assets/pdf/PDF4.pdf') },
+    // { label: 'PDF5', value: require('../assets/pdf/PDF5.pdf') },
+    // { label: 'PDF6', value: require('../assets/pdf/PDF6.pdf') },
   ];
 
   const landmarkTypes = [

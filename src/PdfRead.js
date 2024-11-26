@@ -1,13 +1,17 @@
 import { View, StyleSheet, Dimensions, StatusBar, Platform, TouchableOpacity } from 'react-native';
 import React, { useRef, useState, useEffect } from 'react';
 import Pdf from '../libraries/react-native-pdf';
-import { renderLandmark } from './LandmarkRenderer'; // Ensure this import is correct
-import Scrollbar from './Scrollbar'; // Import Scrollbar component
+import { renderLandmark } from './LandmarkRenderer';
+import Scrollbar from './Scrollbar';
 
 const PdfRead = ({ route }) => {
   const { pdfUri, landmarkType } = route.params;
   const pdfRef = useRef(null);
+
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 });
+  const [previousScrollPosition, setPreviousScrollPosition] = useState(0); // For incremental distance tracking
+  const [cumulativeDistance, setCumulativeDistance] = useState(0); // Total distance scrolled since last signal
+  const [signalPosition, setSignalPosition] = useState(0); // Tracks position at signal trigger
   const [maxScrollY, setMaxScrollY] = useState(0);
   const [isMaxScrollCaptured, setIsMaxScrollCaptured] = useState(false);
 
@@ -15,14 +19,18 @@ const PdfRead = ({ route }) => {
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 20;
   const usableHeight = windowHeight - statusBarHeight;
 
-  // Determine the source type: remote or local
-  const source = typeof pdfUri === 'string' 
-    ? { uri: pdfUri, cache: true } // Remote file
-    : pdfUri; // Local file (require)
+  const source = typeof pdfUri === 'string' ? { uri: pdfUri, cache: true } : pdfUri;
 
   const handleScroll = (x, y) => {
     const normalizedScrollY = Math.max(0, Math.abs(y));
     setScrollPosition({ x, y: normalizedScrollY });
+
+    // Update cumulative distance scrolled
+    const delta = Math.abs(normalizedScrollY - previousScrollPosition);
+    setCumulativeDistance((prev) => prev + delta);
+
+    // Update the previous scroll position for the next delta calculation
+    setPreviousScrollPosition(normalizedScrollY);
 
     if (!isMaxScrollCaptured) {
       setMaxScrollY(normalizedScrollY); // Capture max scrollY when scrolling to the bottom
@@ -48,23 +56,21 @@ const PdfRead = ({ route }) => {
   const scrollToSection = (index) => {
     if (!isMaxScrollCaptured || !maxScrollY) return;
     const sectionHeight = (maxScrollY + usableHeight) / 10;
-    const targetScrollY = (index + 0.5) * sectionHeight ; // Scroll to the midpoint of each section
+    const targetScrollY = (index + 0.5) * sectionHeight; // Scroll to the midpoint of each section
     if (pdfRef.current) {
       pdfRef.current.moveTo(0, -targetScrollY, 1); // Scroll to the midpoint of the section
     }
   };
 
   const getIconOpacity = (index) => {
-    if (!isMaxScrollCaptured || maxScrollY === 0) return 0.3; // Default low opacity if max scroll is not captured
-  
+    if (!isMaxScrollCaptured || maxScrollY === 0) return 0.3;
+
     const sectionHeight = maxScrollY / 10;
-    const sectionMidpoint = index * sectionHeight + sectionHeight / 2; // Midpoint of the current section
+    const sectionMidpoint = index * sectionHeight + sectionHeight / 2;
     const distanceFromMidpoint = Math.abs(scrollPosition.y - sectionMidpoint);
-  
-    // Define a threshold for full opacity (e.g., closer than half a section height)
+
     const fullOpacityThreshold = sectionHeight / 2;
-  
-    // Calculate opacity: closer to midpoint = higher opacity
+
     return distanceFromMidpoint <= fullOpacityThreshold ? 1 : 0.3;
   };
 
@@ -74,9 +80,39 @@ const PdfRead = ({ route }) => {
     const newY = Math.ceil(scrollRatio * maxScrollY);
 
     if (pdfRef.current) {
-      pdfRef.current.moveTo(0, -newY, 1); // Scroll the PDF based on scrollbar position
+      pdfRef.current.moveTo(0, -newY, 1);
     }
   };
+
+  // Debug log the current scroll height every second
+  useEffect(() => {
+    const logHeightInterval = setInterval(() => {
+      console.log(`Current Scroll Height: ${scrollPosition.y}`);
+    }, 1000);
+
+    return () => clearInterval(logHeightInterval);
+  }, [scrollPosition]);
+
+  // Log cumulative distance scrolled every second
+  useEffect(() => {
+    const logDistanceInterval = setInterval(() => {
+      console.log(`Cumulative Distance Scrolled Since Signal: ${cumulativeDistance}`);
+    }, 1000);
+
+    return () => clearInterval(logDistanceInterval);
+  }, [cumulativeDistance]);
+
+  // Trigger a signal every 10 seconds and log the position
+  useEffect(() => {
+    const signalInterval = setInterval(() => {
+      setSignalPosition(scrollPosition.y); // Update signal position
+      console.log(`Signal Triggered at Position: ${scrollPosition.y}`);
+      console.log(`Total Distance Scrolled Since Last Signal: ${cumulativeDistance}`);
+      setCumulativeDistance(0); // Reset cumulative distance after the signal
+    }, 10000);
+
+    return () => clearInterval(signalInterval);
+  }, [scrollPosition, cumulativeDistance]);
 
   if (!isMaxScrollCaptured) {
     return (
@@ -88,7 +124,7 @@ const PdfRead = ({ route }) => {
           style={styles.pdf}
           onLoadComplete={onLoadComplete}
           onError={(error) => console.log(`PDF Error: ${error}`)}
-          onScroll={(x, y) => handleScroll(x, y)} // Handle the onScroll Y values
+          onScroll={(x, y) => handleScroll(x, y)}
         />
       </View>
     );
@@ -105,7 +141,6 @@ const PdfRead = ({ route }) => {
         onScroll={(x, y) => handleScroll(x, y)}
       />
 
-      {/* Landmarks Container */}
       <View style={styles.landmarkContainer}>
         {[...Array(10)].map((_, index) => (
           <TouchableOpacity key={index} onPress={() => scrollToSection(index)}>
@@ -114,7 +149,6 @@ const PdfRead = ({ route }) => {
         ))}
       </View>
 
-      {/* Scrollbar */}
       <Scrollbar
         scrollPosition={scrollPosition.y}
         totalHeight={maxScrollY + usableHeight}
@@ -134,7 +168,7 @@ const styles = StyleSheet.create({
   },
   pdf: {
     flex: 1,
-    width: Dimensions.get('window').width - 40, // Adjusted to make space for landmarks and scrollbar
+    width: Dimensions.get('window').width - 40,
     backgroundColor: '#f0f0f0',
   },
   landmarkContainer: {
