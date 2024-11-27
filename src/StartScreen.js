@@ -1,75 +1,68 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import QRScanner from './QRScanner';
+import React, { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import QRScanner from "./QRScanner";
 
-const StartScreen = ({ navigation }) => {
+const StartScreen = () => {
   const [peerConnection, setPeerConnection] = useState(null);
-  const [currentInstruction, setCurrentInstruction] = useState(''); // Display real-time instructions
+  const [currentInstruction, setCurrentInstruction] = useState("");
 
   const handleQRCodeScan = (scannedData) => {
     try {
-      console.log("Scanned Data:", scannedData);
+      const url = new URL(scannedData); // Parse scanned URL
+      const sessionId = url.searchParams.get("session");
+      console.log("sessionId");
+      console.log(sessionId);
+
+      if (sessionId) {
+        const wsUrl = `wss://mobile-backend-74th.onrender.com/?session=${sessionId}`;
+        console.log("Connecting WebSocket with URL:", wsUrl);
+        const ws = new WebSocket(wsUrl);
   
-      // Attempt to parse as JSON (if it's structured data like an offer)
-      let parsedData;
-      try {
-        parsedData = JSON.parse(scannedData);
-      } catch (e) {
-        console.warn("Scanned data is not JSON. Treating as plain text.");
-        parsedData = scannedData; // Fallback to raw data
-      }
+        ws.onopen = () => {
+          console.log("WebSocket connected for session:", sessionId);
+          ws.send(JSON.stringify({ type: "join", sessionId })); // Notify backend of join request
+        };
   
-      // Handle WebRTC offer if the QR code contains an offer
-      if (parsedData.type === "offer" && parsedData.sdp) {
-        console.log("Received WebRTC Offer:", parsedData);
+        ws.onmessage = (event) => {
+          const message = JSON.parse(event.data);
+          if (message.type === "offer") {
+            const pc = new RTCPeerConnection({
+              iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+            });
   
-        // Initialize WebRTC PeerConnection
-        const pc = new RTCPeerConnection({
-          iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-        });
+            pc.onicecandidate = (e) => {
+              if (e.candidate) {
+                ws.send(JSON.stringify({ type: "candidate", candidate: e.candidate }));
+              }
+            };
   
-        pc.onicecandidate = (event) => {
-          if (event.candidate) {
-            console.log("ICE Candidate from mobile:", event.candidate);
+            pc.ondatachannel = (e) => {
+              const dataChannel = e.channel;
+              dataChannel.onopen = () => console.log("Data channel open");
+              dataChannel.onmessage = (e) => setCurrentInstruction(e.data);
+            };
+  
+            pc.setRemoteDescription(new RTCSessionDescription(message.offer))
+              .then(() => pc.createAnswer())
+              .then((answer) => {
+                pc.setLocalDescription(answer);
+                ws.send(JSON.stringify({ type: "answer", answer }));
+              })
+              .catch((err) => Alert.alert("Error", "WebRTC setup failed"));
+  
+            setPeerConnection(pc);
           }
         };
   
-        pc.ondatachannel = (event) => {
-          const dataChannel = event.channel;
-          dataChannel.onopen = () => console.log("Data channel open");
-          dataChannel.onmessage = (e) => {
-            setCurrentInstruction(e.data); // Update real-time instructions
-            console.log("Instruction received:", e.data);
-          };
-        };
-  
-        // Set the received offer and create an answer
-        pc.setRemoteDescription(new RTCSessionDescription(parsedData))
-          .then(() => pc.createAnswer())
-          .then((answer) => pc.setLocalDescription(answer))
-          .then(() => {
-            console.log("Sending WebRTC Answer:", pc.localDescription);
-            const dataChannel = pc.createDataChannel("signalChannel");
-            dataChannel.onopen = () => {
-              dataChannel.send(JSON.stringify(pc.localDescription)); // Send answer back to PC
-            };
-          })
-          .catch((err) => {
-            console.error("Error during WebRTC handshake:", err);
-            Alert.alert("Error", "Failed to establish WebRTC connection.");
-          });
-  
-        setPeerConnection(pc); // Save the PeerConnection
+        ws.onerror = (err) => Alert.alert("WebSocket Error", "Unable to connect to the server.");
+        ws.onclose = (e) => console.log(`WebSocket closed: code=${e.code}, reason=${e.reason}`);
       } else {
-        // Handle simple text values (like "potato")
-        Alert.alert("Scanned Value", `Received: ${parsedData}`);
+        Alert.alert("Invalid QR Code", "No valid session ID found.");
       }
     } catch (error) {
-      console.error("Error processing scanned data:", error);
-      Alert.alert("Error", "Invalid QR code scanned. Please try again.");
+      Alert.alert("Error", "Invalid QR code scanned.");
     }
   };
-  
 
   return (
     <View style={styles.container}>
@@ -81,15 +74,13 @@ const StartScreen = ({ navigation }) => {
       ) : (
         <>
           <Text style={styles.title}>Real-Time Instructions</Text>
-          <Text style={styles.instructionText}>
-            {currentInstruction || 'Waiting for instructions...'}
-          </Text>
+          <Text style={styles.instructionText}>{currentInstruction || "Waiting for instructions..."}</Text>
           <TouchableOpacity
             style={styles.disconnectButton}
             onPress={() => {
               peerConnection.close();
               setPeerConnection(null);
-              setCurrentInstruction('');
+              setCurrentInstruction("");
             }}
           >
             <Text style={styles.disconnectButtonText}>Disconnect</Text>
@@ -103,31 +94,14 @@ const StartScreen = ({ navigation }) => {
 export default StartScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  instructionText: {
-    fontSize: 18,
-    fontStyle: 'italic',
-    textAlign: 'center',
-    marginVertical: 15,
-  },
+  container: { flex: 1, justifyContent: "center", padding: 20 },
+  title: { fontSize: 24, textAlign: "center", marginBottom: 20 },
+  instructionText: { fontSize: 18, textAlign: "center", marginVertical: 15 },
   disconnectButton: {
     padding: 15,
-    backgroundColor: '#dc3545',
+    backgroundColor: "#dc3545",
     borderRadius: 5,
-    alignItems: 'center',
+    alignItems: "center",
   },
-  disconnectButtonText: {
-    fontSize: 18,
-    color: '#fff',
-    fontWeight: 'bold',
-  },
+  disconnectButtonText: { fontSize: 18, color: "#fff", fontWeight: "bold" },
 });

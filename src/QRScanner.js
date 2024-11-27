@@ -16,17 +16,15 @@ const QRScanner = ({ onScanSuccess }) => {
     return <Text>Requesting camera permission...</Text>;
   }
   if (hasPermission === false) {
-    return <Text>No access to camera. Please enable camera permissions.</Text>;
+    return <Text>No access to camera. Enable permissions in settings.</Text>;
   }
 
   return (
     <View style={styles.container}>
       <BarCodeScanner
         onBarCodeScanned={({ data }) => {
-          console.log("Scanned Data:", data); // Log scanned data
-          if (data) {
-            onScanSuccess(data); // Pass data to parent
-          }
+          console.log("Scanned Data:", data);
+          if (data) onScanSuccess(data);
         }}
         style={StyleSheet.absoluteFillObject}
       />
@@ -34,12 +32,8 @@ const QRScanner = ({ onScanSuccess }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
-
 export default QRScanner;
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: "center", alignItems: "center" },
+});
