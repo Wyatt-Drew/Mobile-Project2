@@ -1,77 +1,101 @@
-import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import QRScanner from './QRScanner';
 
 const StartScreen = ({ navigation }) => {
-  const [selectedPdf, setSelectedPdf] = useState('');
-  const [selectedLandmarkType, setSelectedLandmarkType] = useState('');
+  const [peerConnection, setPeerConnection] = useState(null);
+  const [currentInstruction, setCurrentInstruction] = useState(''); // Display real-time instructions
 
-  const pdfOptions = [
-    { label: 'PDF1', value: require('../assets/pdf/PDF1.pdf') },
-    // { label: 'PDF2', value: require('../assets/pdf/PDF2.pdf') },
-    // { label: 'PDF3', value: require('../assets/pdf/PDF3.pdf') },
-    // { label: 'PDF4', value: require('../assets/pdf/PDF4.pdf') },
-    // { label: 'PDF5', value: require('../assets/pdf/PDF5.pdf') },
-    // { label: 'PDF6', value: require('../assets/pdf/PDF6.pdf') },
-  ];
-
-  const landmarkTypes = [
-    { label: 'No Icons', value: 'None' },
-    { label: 'Numbers (1-10)', value: 'Numbers' },
-    { label: 'Letters (A-J)', value: 'Letters' },
-    { label: 'Icons (Default)', value: 'Icons' },
-    { label: 'Color Icons', value: 'ColorIcons' },
-    // { label: 'Thumbnails', value: 'Thumbnails' },
-  ];
-
-  const beginReading = () => {
-    if (selectedPdf && selectedLandmarkType) {
-      navigation.navigate('PdfRead', { pdfUri: selectedPdf, landmarkType: selectedLandmarkType });
-    } else {
-      alert('Please select both a PDF and a landmark type');
+  const handleQRCodeScan = (scannedData) => {
+    try {
+      console.log("Scanned Data:", scannedData);
+  
+      // Attempt to parse as JSON (if it's structured data like an offer)
+      let parsedData;
+      try {
+        parsedData = JSON.parse(scannedData);
+      } catch (e) {
+        console.warn("Scanned data is not JSON. Treating as plain text.");
+        parsedData = scannedData; // Fallback to raw data
+      }
+  
+      // Handle WebRTC offer if the QR code contains an offer
+      if (parsedData.type === "offer" && parsedData.sdp) {
+        console.log("Received WebRTC Offer:", parsedData);
+  
+        // Initialize WebRTC PeerConnection
+        const pc = new RTCPeerConnection({
+          iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+        });
+  
+        pc.onicecandidate = (event) => {
+          if (event.candidate) {
+            console.log("ICE Candidate from mobile:", event.candidate);
+          }
+        };
+  
+        pc.ondatachannel = (event) => {
+          const dataChannel = event.channel;
+          dataChannel.onopen = () => console.log("Data channel open");
+          dataChannel.onmessage = (e) => {
+            setCurrentInstruction(e.data); // Update real-time instructions
+            console.log("Instruction received:", e.data);
+          };
+        };
+  
+        // Set the received offer and create an answer
+        pc.setRemoteDescription(new RTCSessionDescription(parsedData))
+          .then(() => pc.createAnswer())
+          .then((answer) => pc.setLocalDescription(answer))
+          .then(() => {
+            console.log("Sending WebRTC Answer:", pc.localDescription);
+            const dataChannel = pc.createDataChannel("signalChannel");
+            dataChannel.onopen = () => {
+              dataChannel.send(JSON.stringify(pc.localDescription)); // Send answer back to PC
+            };
+          })
+          .catch((err) => {
+            console.error("Error during WebRTC handshake:", err);
+            Alert.alert("Error", "Failed to establish WebRTC connection.");
+          });
+  
+        setPeerConnection(pc); // Save the PeerConnection
+      } else {
+        // Handle simple text values (like "potato")
+        Alert.alert("Scanned Value", `Received: ${parsedData}`);
+      }
+    } catch (error) {
+      console.error("Error processing scanned data:", error);
+      Alert.alert("Error", "Invalid QR code scanned. Please try again.");
     }
   };
-
-  const renderButton = (options, selectedValue, onSelect) => {
-    return options.map((option) => (
-      <TouchableOpacity
-        key={option.value}
-        onPress={() => onSelect(option.value)}
-        style={[
-          styles.optionButton,
-          selectedValue === option.value && styles.selectedOption,
-        ]}
-      >
-        <Text
-          style={[
-            styles.optionText,
-            selectedValue === option.value && styles.selectedOptionText,
-          ]}
-        >
-          {option.label}
-        </Text>
-      </TouchableOpacity>
-    ));
-  };
+  
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Select a PDF and Landmark Type</Text>
-
-      {/* PDF Selection */}
-      <Text style={styles.label}>Choose a PDF:</Text>
-      <View style={styles.optionsContainer}>
-        {renderButton(pdfOptions, selectedPdf, setSelectedPdf)}
-      </View>
-
-      {/* Landmark Type Selection */}
-      <Text style={styles.label}>Choose a Landmark Type:</Text>
-      <View style={styles.optionsContainer}>
-        {renderButton(landmarkTypes, selectedLandmarkType, setSelectedLandmarkType)}
-      </View>
-
-      <TouchableOpacity onPress={beginReading} style={styles.beginButton}>
-        <Text style={styles.beginButtonText}>Begin</Text>
-      </TouchableOpacity>
+      {!peerConnection ? (
+        <>
+          <Text style={styles.title}>Scan QR Code to Connect</Text>
+          <QRScanner onScanSuccess={handleQRCodeScan} />
+        </>
+      ) : (
+        <>
+          <Text style={styles.title}>Real-Time Instructions</Text>
+          <Text style={styles.instructionText}>
+            {currentInstruction || 'Waiting for instructions...'}
+          </Text>
+          <TouchableOpacity
+            style={styles.disconnectButton}
+            onPress={() => {
+              peerConnection.close();
+              setPeerConnection(null);
+              setCurrentInstruction('');
+            }}
+          >
+            <Text style={styles.disconnectButtonText}>Disconnect</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 };
@@ -89,38 +113,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  label: {
+  instructionText: {
     fontSize: 18,
-    marginBottom: 10,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginVertical: 15,
   },
-  optionsContainer: {
-    marginBottom: 20,
-  },
-  optionButton: {
+  disconnectButton: {
     padding: 15,
-    borderWidth: 2,
-    borderColor: '#007AFF',
-    borderRadius: 5,
-    marginBottom: 10,
-    alignItems: 'center',
-  },
-  selectedOption: {
-    backgroundColor: '#007AFF',
-  },
-  optionText: {
-    fontSize: 16,
-    color: '#007AFF',
-  },
-  selectedOptionText: {
-    color: '#fff',
-  },
-  beginButton: {
-    padding: 15,
-    backgroundColor: '#28a745',
+    backgroundColor: '#dc3545',
     borderRadius: 5,
     alignItems: 'center',
   },
-  beginButtonText: {
+  disconnectButtonText: {
     fontSize: 18,
     color: '#fff',
     fontWeight: 'bold',
