@@ -6,6 +6,9 @@ const StartScreen = () => {
   const [peerConnection, setPeerConnection] = useState(null);
   const [currentInstruction, setCurrentInstruction] = useState("");
   const [pairingStatus, setPairingStatus] = useState("waiting");
+  const [isPaired, setIsPaired] = useState(false);
+  const [subjectIDEntered, setSubjectIDEntered] = useState(false); // New state for subject ID
+  const [webSocket, setWebSocket] = useState(null);
 
   const handleQRCodeScan = (scannedData) => {
     try {
@@ -17,11 +20,12 @@ const StartScreen = () => {
         const wsUrl = `wss://mobile-backend-74th.onrender.com/?session=${sessionId}`;
         console.log("Connecting WebSocket with URL:", wsUrl);
         const ws = new WebSocket(wsUrl);
+        setWebSocket(ws);
 
         ws.onopen = () => {
           console.log("WebSocket connected for session:", sessionId);
           ws.send(JSON.stringify({ type: "join", sessionId })); // Notify backend of join request
-          setPairingStatus("waiting"); // Update status to waiting
+          setPairingStatus("waiting");
         };
 
         ws.onmessage = (event) => {
@@ -32,7 +36,10 @@ const StartScreen = () => {
             if (message.type === "paired") {
               console.log("Pairing complete!");
               setPairingStatus("paired");
-              Alert.alert("Pairing Successful", "Connected to desktop successfully.");
+              setIsPaired(true);
+            } else if (message.type === "subject-id-entered") {
+              console.log("Subject ID received, enabling Begin button.");
+              setSubjectIDEntered(true); // Enable Begin button
             } else if (message.type === "offer") {
               const pc = new RTCPeerConnection({
                 iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -68,7 +75,8 @@ const StartScreen = () => {
         ws.onerror = (err) => Alert.alert("WebSocket Error", "Unable to connect to the server.");
         ws.onclose = (e) => {
           console.log(`WebSocket closed: code=${e.code}, reason=${e.reason}`);
-          setPairingStatus("waiting"); // Reset status
+          setPairingStatus("waiting");
+          setIsPaired(false);
         };
       } else {
         Alert.alert("Invalid QR Code", "No valid session ID found.");
@@ -78,9 +86,18 @@ const StartScreen = () => {
     }
   };
 
+  const handleBegin = () => {
+    if (webSocket) {
+      webSocket.send(JSON.stringify({ type: "begin" })); // Notify the desktop to start countdown
+      console.log("Sent 'begin' signal to desktop");
+    } else {
+      Alert.alert("Error", "WebSocket connection not established.");
+    }
+  };
+
   return (
     <View style={styles.container}>
-      {!peerConnection ? (
+      {!isPaired ? (
         <>
           <Text style={styles.title}>
             {pairingStatus === "waiting" ? "Scan QR Code to Connect" : "Pairing Complete!"}
@@ -89,21 +106,16 @@ const StartScreen = () => {
         </>
       ) : (
         <>
-          <Text style={styles.title}>Real-Time Instructions</Text>
-          <Text style={styles.instructionText}>
-            {currentInstruction || "Waiting for instructions..."}
-          </Text>
-          <TouchableOpacity
-            style={styles.disconnectButton}
-            onPress={() => {
-              peerConnection.close();
-              setPeerConnection(null);
-              setCurrentInstruction("");
-              setPairingStatus("waiting");
-            }}
-          >
-            <Text style={styles.disconnectButtonText}>Disconnect</Text>
-          </TouchableOpacity>
+          {!subjectIDEntered ? (
+            <Text style={styles.title}>Paired successfully, awaiting subject ID...</Text>
+          ) : (
+            <>
+              <Text style={styles.title}>Welcome to the Study</Text>
+              <TouchableOpacity style={styles.beginButton} onPress={handleBegin}>
+                <Text style={styles.beginButtonText}>Begin</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </>
       )}
     </View>
@@ -115,12 +127,11 @@ export default StartScreen;
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", padding: 20 },
   title: { fontSize: 24, textAlign: "center", marginBottom: 20 },
-  instructionText: { fontSize: 18, textAlign: "center", marginVertical: 15 },
-  disconnectButton: {
+  beginButton: {
     padding: 15,
-    backgroundColor: "#dc3545",
+    backgroundColor: "#28a745",
     borderRadius: 5,
     alignItems: "center",
   },
-  disconnectButtonText: { fontSize: 18, color: "#fff", fontWeight: "bold" },
+  beginButtonText: { fontSize: 18, color: "#fff", fontWeight: "bold" },
 });
