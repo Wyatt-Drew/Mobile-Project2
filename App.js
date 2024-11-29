@@ -1,8 +1,8 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import Sender from './src/Sender';
-import Receiver from './src/Receiver';
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import Sender from "./src/Sender";
+import Receiver from "./src/Receiver";
 
 const Stack = createStackNavigator();
 

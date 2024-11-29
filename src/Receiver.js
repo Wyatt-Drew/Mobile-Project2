@@ -1,56 +1,63 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
-import Peer from 'react-native-peerjs';
+import React, { useEffect, useState } from "react";
+import { View, Text, FlatList, StyleSheet } from "react-native";
+
+const BACKEND_WS_URL = "wss://mobile-backend-74th.onrender.com";
 
 export default function Receiver() {
-  const [peer, setPeer] = useState(null);
-  const [conn, setConn] = useState(null);
-  const [peerId, setPeerId] = useState('');
-  const [status, setStatus] = useState('Awaiting connection...');
+  const [sessionId, setSessionId] = useState("");
+  const [status, setStatus] = useState("Disconnected");
   const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState('');
+  const [ws, setWs] = useState(null);
 
   useEffect(() => {
-    const newPeer = new Peer(null, { debug: 2 });
+    const createSession = async () => {
+      try {
+        const response = await fetch(`${BACKEND_WS_URL.replace("wss", "https")}/generate-session`);
+        const data = await response.json();
+        setSessionId(data.sessionId);
+        setStatus(`Session ID: ${data.sessionId}`);
+      } catch (error) {
+        console.error("Error generating session:", error);
+      }
+    };
 
-    newPeer.on('open', (id) => {
-      setPeerId(id);
-    });
-
-    newPeer.on('connection', (connection) => {
-      setConn(connection);
-      setStatus('Connected');
-      connection.on('data', (data) => {
-        // Directly use the received string
-        setMessages((prev) => [...prev, `Peer: ${data}`]);
-      });
-    });
-
-    setPeer(newPeer);
-
-    return () => newPeer.destroy();
+    createSession();
   }, []);
 
-  const sendMessage = () => {
-    if (conn && conn.open) {
-      conn.send(inputMessage); // Send the raw string
-      setMessages((prev) => [...prev, `Self: ${inputMessage}`]);
-      setInputMessage('');
-    }
-  };
+  useEffect(() => {
+    if (!sessionId) return;
+
+    const socket = new WebSocket(BACKEND_WS_URL);
+
+    socket.onopen = () => {
+      setWs(socket);
+      socket.send(JSON.stringify({ type: "register", sessionId }));
+      setStatus("Connected to WebSocket");
+    };
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setMessages((prev) => [...prev, `${data.sender}: ${data.message}`]);
+    };
+
+    socket.onclose = () => {
+      setWs(null);
+      setStatus("WebSocket connection closed.");
+    };
+
+    socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [sessionId]);
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Receiver</Text>
-      <Text>ID: {peerId}</Text>
-      <Text>Status: {status}</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter a message..."
-        value={inputMessage}
-        onChangeText={setInputMessage}
-      />
-      <Button title="Send" onPress={sendMessage} />
+      <Text>{status}</Text>
       <FlatList
         data={messages}
         renderItem={({ item }) => <Text>{item}</Text>}
@@ -62,6 +69,5 @@ export default function Receiver() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
-  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
-  input: { borderWidth: 1, borderColor: '#ccc', padding: 10, marginVertical: 10, borderRadius: 5 },
+  header: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
 });
