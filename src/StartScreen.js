@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import QRScreen from "./QRScreen";
-import BeginScreen from "./BeginScreen";
+import WaitingScreen from "./WaitingScreen";
 import Peer from "react-native-peerjs";
 
 const StartScreen = () => {
@@ -12,16 +12,27 @@ const StartScreen = () => {
     try {
       const desktopPeerId = scannedData; // Scanned QR code contains the desktop's PeerJS ID
 
-      // Initialize PeerJS client using the default PeerJS server
-      const peerInstance = new Peer();
+      console.log("Attempting to connect to desktop peer with ID:", desktopPeerId);
 
-      // Connect to the desktop peer
+      // Initialize PeerJS client using the default PeerJS server
+      const peerInstance = new Peer(); // Use default PeerJS server
+
+      // Attach event listeners to the Peer instance
+      peerInstance.on("open", (id) => {
+        console.log("Mobile PeerJS ID:", id);
+      });
+
+      peerInstance.on("error", (err) => {
+        console.error("PeerJS Error:", err);
+      });
+
+      // Connect to the desktop peer using the scanned ID
       const conn = peerInstance.connect(desktopPeerId);
 
       conn.on("open", () => {
-        console.log("Connected to desktop peer:", desktopPeerId);
-        setConnection(conn);
-        setIsConnected(true);
+        console.log("Connection successfully established with desktop peer:", desktopPeerId);
+        setConnection(conn); // Save the connection object
+        setIsConnected(true); // Update the state to indicate the connection is active
       });
 
       conn.on("data", (data) => {
@@ -34,30 +45,21 @@ const StartScreen = () => {
 
       conn.on("close", () => {
         console.log("Connection closed with desktop peer.");
-        setIsConnected(false);
-        setConnection(null);
+        setIsConnected(false); // Reset the connection state
+        setConnection(null); // Clear the connection object
       });
 
-      setPeer(peerInstance);
+      setPeer(peerInstance); // Save the PeerJS instance
     } catch (error) {
       console.error("Error handling QR Code scan:", error.message);
     }
   };
 
-  const sendMessage = (message) => {
-    if (connection && connection.open) {
-      connection.send(message);
-      console.log("Message sent to desktop:", message);
-    } else {
-      console.log("No active connection to send message.");
-    }
-  };
-
   if (!isConnected) {
-    return <QRScreen onScanSuccess={handleQRCodeScan} />;
+    return <QRScreen onScanSuccess={handleQRCodeScan} />; // Show QR scanner if not connected
   }
 
-  return <BeginScreen sendMessage={sendMessage} />;
+  return <WaitingScreen />; // Show "Waiting for subject ID" screen if connected
 };
 
 export default StartScreen;
