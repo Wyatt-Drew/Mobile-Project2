@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, FlatList, StyleSheet } from "react-native";
+import { View, Text, Button, TextInput, StyleSheet } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 
 const BACKEND_WS_URL = "wss://mobile-backend-74th.onrender.com";
 
+const SCREENS = {
+  SCAN_QR: 1,
+  WAITING: 2,
+  BEGIN: 3,
+};
+
 export default function Sender() {
   const [hasPermission, setHasPermission] = useState(null);
   const [sessionId, setSessionId] = useState("");
-  const [status, setStatus] = useState("Waiting to scan QR code...");
+  const [ws, setWs] = useState(null);
+  const [currentScreen, setCurrentScreen] = useState(SCREENS.SCAN_QR);
+  const [subjectId, setSubjectId] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); // For displaying WebSocket or other errors
+  const [customMessage, setCustomMessage] = useState(""); // For sending custom messages
   const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [ws, setWs] = useState(null);
-  const [isScanned, setIsScanned] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -21,71 +29,127 @@ export default function Sender() {
   }, []);
 
   const handleBarCodeScanned = ({ data }) => {
-    if (isScanned) return;
-
-    setIsScanned(true);
+    if (sessionId) {
+      console.warn("QR Code already scanned."); // Prevent double scanning
+      return;
+    }
+    console.log("QR Code Scanned:", data);
     setSessionId(data);
-    setStatus(`Scanned session ID: ${data}`);
+    setCurrentScreen(SCREENS.WAITING);
     connectToSession(data);
   };
 
   const connectToSession = (scannedSessionId) => {
+    console.log("Connecting to session:", scannedSessionId);
+
+    // Avoid duplicate WebSocket connections
+    if (ws) {
+      console.warn("WebSocket already exists.");
+      return;
+    }
+
     const socket = new WebSocket(BACKEND_WS_URL);
 
     socket.onopen = () => {
+      console.log("WebSocket connection opened.");
       setWs(socket);
-      setStatus(`Connected to session: ${scannedSessionId}`);
-      socket.send(
-        JSON.stringify({
-          type: "register",
-          sessionId: scannedSessionId,
-        })
-      );
+
+      // Register with the backend
+      const registerMessage = {
+        type: "register",
+        sessionId: scannedSessionId,
+      };
+      console.log("Sending register message:", registerMessage);
+      socket.send(JSON.stringify(registerMessage));
+
+      // Notify the desktop app of the connection
+      const mobileConnectedMessage = {
+        type: "mobileConnected",
+        sessionId: scannedSessionId,
+      };
+      console.log("Sending mobileConnected message:", mobileConnectedMessage);
+      socket.send(JSON.stringify(mobileConnectedMessage));
     };
 
     socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setMessages((prev) => [...prev, `${data.sender}: ${data.message}`]);
+      const message = JSON.parse(event.data);
+      console.log("Message received:", message);
+
+      if (message.type === "subjectId") {
+        console.log("Subject ID received:", message.message);
+        setSubjectId(message.message); // Save Subject ID
+        setCurrentScreen(SCREENS.BEGIN); // Transition to BEGIN screen
+      } else {
+        console.log("Unhandled message type:", message.type);
+      }
     };
 
     socket.onclose = () => {
-      setWs(null);
-      setStatus("Connection closed.");
+      console.log("WebSocket connection closed.");
+      setErrorMessage("WebSocket connection closed.");
+      setWs(null); // Reset WebSocket reference
+      setCurrentScreen(SCREENS.SCAN_QR); // Reset to scanning
     };
 
-    socket.onerror = (error) => {
-      console.error("WebSocket error:", error);
-      setStatus("Failed to connect to session.");
+    socket.onerror = (err) => {
+      console.error("WebSocket error:", err);
+      setErrorMessage("WebSocket error. Please retry.");
+      setWs(null); // Reset WebSocket reference
     };
   };
-
   const sendMessage = () => {
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(
         JSON.stringify({
           type: "message",
           sessionId,
-          sender: "Mobile Sender",
+          sender: "Sender",
           message: inputMessage,
         })
       );
       setMessages((prev) => [...prev, `Self: ${inputMessage}`]);
       setInputMessage("");
+    } else {
+      console.error("WebSocket is not connected.");
+    }
+  };
+  const sendCustomMessage = () => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      const customMessagePayload = {
+        type: "message",
+        sessionId,
+        sender: "Mobile",
+        message: customMessage,
+      };
+      console.log("Sending custom message:", customMessagePayload);
+      ws.send(JSON.stringify(customMessagePayload));
+      setCustomMessage(""); // Clear input field
+    } else {
+      console.error("WebSocket is not connected. Unable to send message.");
+      setErrorMessage("WebSocket is not connected.");
     }
   };
 
-  if (hasPermission === null) {
-    return <Text>Requesting camera permission...</Text>;
-  }
-  if (hasPermission === false) {
-    return <Text>No access to camera. Enable permissions in settings.</Text>;
+  // Render screens based on current state
+  if (currentScreen === SCREENS.SCAN_QR) {
+    return (
+      <View style={styles.container}>
+        {hasPermission === null && <Text>Requesting camera permission...</Text>}
+        {hasPermission === false && <Text>No access to camera.</Text>}
+        {hasPermission === true && (
+          <BarCodeScanner
+            onBarCodeScanned={handleBarCodeScanned}
+            style={StyleSheet.absoluteFillObject}
+          />
+        )}
+      </View>
+    );
   }
 
-  return (
-    <View style={styles.container}>
-      {sessionId ? (
-        <>
-          <Text>{status}</Text>
+  if (currentScreen === SCREENS.WAITING) {
+    return (
+        
+      <View style={styles.container}>
           <TextInput
             style={styles.input}
             placeholder="Enter a message..."
@@ -93,23 +157,41 @@ export default function Sender() {
             onChangeText={setInputMessage}
           />
           <Button title="Send" onPress={sendMessage} />
-          <FlatList
-            data={messages}
-            renderItem={({ item }) => <Text>{item}</Text>}
-            keyExtractor={(item, index) => index.toString()}
-          />
-        </>
-      ) : (
-        <BarCodeScanner
-          onBarCodeScanned={handleBarCodeScanned}
-          style={StyleSheet.absoluteFillObject}
+          
+        <Text>Awaiting Subject ID...</Text>
+        {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+      </View>
+    );
+  }
+
+  if (currentScreen === SCREENS.BEGIN) {
+    return (
+      <View style={styles.container}>
+        <Text>Subject ID: {subjectId}</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter a custom message"
+          value={customMessage}
+          onChangeText={setCustomMessage}
         />
-      )}
-    </View>
-  );
+        <Button title="Send Message" onPress={sendCustomMessage} />
+        <Button title="Begin" onPress={() => console.log("Begin Study")} />
+      </View>
+    );
+  }
+
+  return null;
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", alignItems: "center" },
-  input: { borderWidth: 1, borderColor: "#ccc", padding: 10, marginVertical: 10, borderRadius: 5 },
+  error: { color: "red", marginTop: 10 },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    marginVertical: 10,
+    borderRadius: 5,
+    width: "80%",
+  },
 });
