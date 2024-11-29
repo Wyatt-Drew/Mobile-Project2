@@ -1,14 +1,20 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
-const BeginScreen = ({ onBegin }) => (
-  <View style={styles.container}>
-    <Text style={styles.title}>Connected! Ready to Begin.</Text>
-    <TouchableOpacity style={styles.beginButton} onPress={onBegin}>
-      <Text style={styles.beginButtonText}>Start</Text>
-    </TouchableOpacity>
-  </View>
-);
+const BeginScreen = ({ sendMessage }) => {
+  const handleSend = () => {
+    sendMessage("Hello, peer!");
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Connected! Ready to Begin.</Text>
+      <TouchableOpacity style={styles.beginButton} onPress={handleSend}>
+        <Text style={styles.beginButtonText}>Send Test Message</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20 },

@@ -1,38 +1,63 @@
 import React, { useState } from "react";
 import QRScreen from "./QRScreen";
-import WaitingScreen from "./WaitingScreen";
 import BeginScreen from "./BeginScreen";
+import Peer from "react-native-peerjs";
 
 const StartScreen = () => {
-  const [webSocket, setWebSocket] = useState(null);
-  const [isPaired, setIsPaired] = useState(false);
+  const [peer, setPeer] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [connection, setConnection] = useState(null);
 
-  const handleWebSocketSetup = (ws) => {
-    setWebSocket(ws);
+  const handleQRCodeScan = (scannedData) => {
+    try {
+      const desktopPeerId = scannedData; // Scanned QR code contains the desktop's PeerJS ID
 
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      if (message.type === "paired") {
-        setIsPaired(true);
-      }
-    };
+      // Initialize PeerJS client using the default PeerJS server
+      const peerInstance = new Peer();
 
-    ws.onerror = (error) => console.error("WebSocket error:", error);
-    ws.onclose = () => console.log("WebSocket connection closed.");
-  };
+      // Connect to the desktop peer
+      const conn = peerInstance.connect(desktopPeerId);
 
-  const handleBegin = () => {
-    if (webSocket) {
-      webSocket.send(JSON.stringify({ type: "begin" }));
-      console.log("Sent 'begin' signal to the backend.");
+      conn.on("open", () => {
+        console.log("Connected to desktop peer:", desktopPeerId);
+        setConnection(conn);
+        setIsConnected(true);
+      });
+
+      conn.on("data", (data) => {
+        console.log("Received data from desktop:", data);
+      });
+
+      conn.on("error", (err) => {
+        console.error("Connection error:", err);
+      });
+
+      conn.on("close", () => {
+        console.log("Connection closed with desktop peer.");
+        setIsConnected(false);
+        setConnection(null);
+      });
+
+      setPeer(peerInstance);
+    } catch (error) {
+      console.error("Error handling QR Code scan:", error.message);
     }
   };
 
-  if (!isPaired) {
-    return <QRScreen onWebSocketSetup={handleWebSocketSetup} />;
+  const sendMessage = (message) => {
+    if (connection && connection.open) {
+      connection.send(message);
+      console.log("Message sent to desktop:", message);
+    } else {
+      console.log("No active connection to send message.");
+    }
+  };
+
+  if (!isConnected) {
+    return <QRScreen onScanSuccess={handleQRCodeScan} />;
   }
 
-  return <BeginScreen onBegin={handleBegin} />;
+  return <BeginScreen sendMessage={sendMessage} />;
 };
 
 export default StartScreen;

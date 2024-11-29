@@ -4,6 +4,7 @@ import { BarCodeScanner } from "expo-barcode-scanner";
 
 const QRScanner = ({ onScanSuccess }) => {
   const [hasPermission, setHasPermission] = useState(null);
+  const [isScanned, setIsScanned] = useState(false); // Prevent repeated scans
 
   useEffect(() => {
     (async () => {
@@ -11,6 +12,13 @@ const QRScanner = ({ onScanSuccess }) => {
       setHasPermission(status === "granted");
     })();
   }, []);
+
+  const handleBarCodeScanned = ({ data }) => {
+    if (isScanned) return; // Prevent further scans
+    setIsScanned(true);
+    console.log("Scanned Data:", data);
+    onScanSuccess(data);
+  };
 
   if (hasPermission === null) {
     return <Text>Requesting camera permission...</Text>;
@@ -22,10 +30,7 @@ const QRScanner = ({ onScanSuccess }) => {
   return (
     <View style={styles.container}>
       <BarCodeScanner
-        onBarCodeScanned={({ data }) => {
-          console.log("Scanned Data:", data);
-          if (data) onScanSuccess(data);
-        }}
+        onBarCodeScanned={handleBarCodeScanned}
         style={StyleSheet.absoluteFillObject}
       />
     </View>
