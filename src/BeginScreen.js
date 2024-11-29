@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
 const BeginScreen = ({ sendMessage }) => {
   const handleSend = () => {
-    sendMessage("Hello, peer!");
+    sendMessage("Hello, desktop peer!");
   };
 
   return (
