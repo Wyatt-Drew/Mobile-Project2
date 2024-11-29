@@ -1,17 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import QRScanner from "./QRScanner";
 
 const QRScreen = ({ onWebSocketSetup }) => {
-  const handleQRCodeScan = (scannedData) => {
-    const url = new URL(scannedData);
-    const sessionId = url.searchParams.get("session");
+  const [webSocket, setWebSocket] = useState(null); // Track WebSocket creation state
 
-    if (sessionId) {
-      const ws = new WebSocket(`wss://mobile-backend-74th.onrender.com/?session=${sessionId}`);
-      onWebSocketSetup(ws);
-    } else {
-      console.error("Invalid QR Code: No session ID found.");
+  const handleQRCodeScan = (scannedData) => {
+    if (webSocket) {
+      console.log("WebSocket already established. Ignoring repeated QR scan.");
+      return; // Prevent duplicate WebSocket creation
+    }
+
+    try {
+      const url = new URL(scannedData);
+      const sessionId = url.searchParams.get("session");
+
+      if (sessionId) {
+        console.log("Session ID from QR code:", sessionId);
+
+        const ws = new WebSocket(`wss://mobile-backend-74th.onrender.com/?session=${sessionId}`);
+        setWebSocket(ws); // Store the WebSocket to prevent multiple connections
+        onWebSocketSetup(ws); // Pass the WebSocket to parent component
+      } else {
+        console.error("Invalid QR Code: No session ID found.");
+      }
+    } catch (error) {
+      console.error("Error parsing QR code:", error);
     }
   };
 
