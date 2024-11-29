@@ -1,39 +1,34 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, Button, FlatList, StyleSheet } from "react-native";
 
 const BACKEND_WS_URL = "wss://mobile-backend-74th.onrender.com";
 
 export default function Sender() {
   const [sessionId, setSessionId] = useState("");
-  const [status, setStatus] = useState("Disconnected");
+  const [inputSessionId, setInputSessionId] = useState("");
+  const [status, setStatus] = useState("Enter a session code to connect.");
   const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [ws, setWs] = useState(null);
 
-  useEffect(() => {
-    const createSession = async () => {
-      try {
-        const response = await fetch(`${BACKEND_WS_URL.replace("wss", "https")}/generate-session`);
-        const data = await response.json();
-        setSessionId(data.sessionId);
-        setStatus(`Session ID: ${data.sessionId}`);
-      } catch (error) {
-        console.error("Error generating session:", error);
-      }
-    };
-
-    createSession();
-  }, []);
-
-  useEffect(() => {
-    if (!sessionId) return;
+  const connectToSession = () => {
+    if (!inputSessionId) {
+      setStatus("Please enter a valid session code.");
+      return;
+    }
 
     const socket = new WebSocket(BACKEND_WS_URL);
 
     socket.onopen = () => {
       setWs(socket);
-      socket.send(JSON.stringify({ type: "register", sessionId }));
-      setStatus("Connected to WebSocket");
+      setSessionId(inputSessionId); // Use the session code entered by the user
+      setStatus(`Connected to session: ${inputSessionId}`);
+      socket.send(
+        JSON.stringify({
+          type: "register",
+          sessionId: inputSessionId,
+        })
+      );
     };
 
     socket.onmessage = (event) => {
@@ -43,21 +38,25 @@ export default function Sender() {
 
     socket.onclose = () => {
       setWs(null);
-      setStatus("WebSocket connection closed.");
+      setStatus("Connection closed.");
     };
 
     socket.onerror = (error) => {
       console.error("WebSocket error:", error);
+      setStatus("Failed to connect to session.");
     };
-
-    return () => {
-      socket.close();
-    };
-  }, [sessionId]);
+  };
 
   const sendMessage = () => {
     if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type: "message", sessionId, sender: "Sender", message: inputMessage }));
+      ws.send(
+        JSON.stringify({
+          type: "message",
+          sessionId,
+          sender: "Sender",
+          message: inputMessage,
+        })
+      );
       setMessages((prev) => [...prev, `Self: ${inputMessage}`]);
       setInputMessage("");
     } else {
@@ -68,14 +67,29 @@ export default function Sender() {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Sender</Text>
-      <Text>{status}</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter a message..."
-        value={inputMessage}
-        onChangeText={setInputMessage}
-      />
-      <Button title="Send" onPress={sendMessage} />
+      {sessionId ? (
+        <>
+          <Text>Status: {status}</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter a message..."
+            value={inputMessage}
+            onChangeText={setInputMessage}
+          />
+          <Button title="Send" onPress={sendMessage} />
+        </>
+      ) : (
+        <>
+          <Text>{status}</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Session Code"
+            value={inputSessionId}
+            onChangeText={setInputSessionId}
+          />
+          <Button title="Connect" onPress={connectToSession} />
+        </>
+      )}
       <FlatList
         data={messages}
         renderItem={({ item }) => <Text>{item}</Text>}
