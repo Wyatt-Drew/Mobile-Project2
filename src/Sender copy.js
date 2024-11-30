@@ -17,9 +17,14 @@ export default function Sender() {
   const [currentScreen, setCurrentScreen] = useState(SCREENS.SCAN_QR);
   const [subjectId, setSubjectId] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // For displaying WebSocket or other errors
-  const [customMessage, setCustomMessage] = useState(""); // For sending custom messages
   const [inputMessage, setInputMessage] = useState("");
+  const [inputMessageType, setInputMessageType] = useState("");
   const [messages, setMessages] = useState([]);
+
+//setInputMessage
+//setInputMessageType
+//sendMessage
+
 
   useEffect(() => {
     (async () => {
@@ -50,26 +55,48 @@ export default function Sender() {
 
     const socket = new WebSocket(BACKEND_WS_URL);
 
+
     socket.onopen = () => {
-      console.log("WebSocket connection opened.");
-      setWs(socket);
+        console.log("WebSocket connection opened.");
+        setWs(socket);
+  
+        // Register with the backend
+        const registerMessage = {
+          type: "register",
+          sessionId: scannedSessionId,
+        };
+        console.log("Sending register message:", registerMessage);
+        socket.send(JSON.stringify(registerMessage));
+  
+        // Notify the desktop app of the connection
+        const mobileConnectedMessage = {
+          type: "mobileConnected",
+          sessionId: scannedSessionId,
+        };
+        console.log("Sending mobileConnected message:", mobileConnectedMessage);
+        socket.send(JSON.stringify(mobileConnectedMessage));
 
-      // Register with the backend
-      const registerMessage = {
-        type: "register",
-        sessionId: scannedSessionId,
-      };
-      console.log("Sending register message:", registerMessage);
-      socket.send(JSON.stringify(registerMessage));
+        setInputMessage("")
+        setInputMessageType("register")
+        sendMessage    
+  
+        setInputMessage("")
+        setInputMessageType("mobileConnected")
+        sendMessage
 
-      // Notify the desktop app of the connection
-      const mobileConnectedMessage = {
-        type: "mobileConnected",
-        sessionId: scannedSessionId,
+
       };
-      console.log("Sending mobileConnected message:", mobileConnectedMessage);
-      socket.send(JSON.stringify(mobileConnectedMessage));
-    };
+
+    // socket.onopen = () => {
+    //     console.log("WebSocket connection opened.");
+    //     setWs(socket);
+      
+    //     // Send "register" message
+    //     sendMessage("register", "");
+      
+    //     // Send "mobileConnected" message
+    //     sendMessage("mobileConnected", "");
+    //   };
 
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
@@ -97,18 +124,17 @@ export default function Sender() {
       setWs(null); // Reset WebSocket reference
     };
   };
-  const sendMessage = () => {
+  const sendMessage = (type, message) => {
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(
         JSON.stringify({
-          type: "message",
+          type,
           sessionId,
           sender: "Sender",
-          message: inputMessage,
+          message,
         })
       );
-      setMessages((prev) => [...prev, `Self: ${inputMessage}`]);
-      setInputMessage("");
+      setMessages((prev) => [...prev, `Self: ${type} - ${message}`]);
     } else {
       console.error("WebSocket is not connected.");
     }
@@ -140,8 +166,8 @@ export default function Sender() {
             value={inputMessage}
             onChangeText={setInputMessage}
           />
-          <Button title="Send" onPress={sendMessage} />
-          
+          <Button title="Send" onPress={() => sendMessage("custom", inputMessage)} />
+
         <Text>Awaiting Subject ID...</Text>
         {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       </View>
@@ -151,14 +177,6 @@ export default function Sender() {
   if (currentScreen === SCREENS.BEGIN) {
     return (
       <View style={styles.container}>
-        <Text>Subject ID: {subjectId}</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter a custom message"
-          value={customMessage}
-          onChangeText={setCustomMessage}
-        />
-        <Button title="Send Message" onPress={sendMessage} />
         <Button title="Begin" onPress={() => console.log("Begin Study")} />
       </View>
     );
