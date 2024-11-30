@@ -174,9 +174,17 @@ const styles = StyleSheet.create({
   landmarkContainer: {
     position: 'absolute',
     top: 0,
-    right: 50,
+    right: 30,
     justifyContent: 'space-around',
-    height: Dimensions.get('window').height * 0.8,
+    height: Dimensions.get('window').height * 1,
     padding: 0,
+  },
+  invisibleLayer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'transparent', // Fully transparent to maintain the view
   },
 });
