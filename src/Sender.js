@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Button, TextInput, StyleSheet } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import WaitingScreen from "./pages/WaitingScreen";
+import PdfRead from "./PdfRead";
+
 
 const BACKEND_WS_URL = "wss://mobile-backend-74th.onrender.com";
   
@@ -12,6 +14,7 @@ const SCREENS = {
   PDF: 4,
   BLANK: 5,
 };
+
 
 const landmarkTypes = [
     { label: 'No Icons', value: 'None' },
@@ -24,7 +27,6 @@ const landmarkTypes = [
   const pdfOptions = [
     { label: 'PDF1', value: require('../assets/pdf/PDF1.pdf') },
   ];
-
 
 export default function Sender() {
   const [hasPermission, setHasPermission] = useState(null);
@@ -98,6 +100,22 @@ export default function Sender() {
         console.log("Subject ID received:", message.message);
         setSubjectId(message.message); // Save Subject ID
         setCurrentScreen(SCREENS.BEGIN); // Transition to BEGIN screen
+    } else if (message.type === "PDF") {
+        console.log("Updating PDF with label:", message.message);
+        const pdfOption = pdfOptions.find((option) => option.label === message.message);
+        if (pdfOption) {
+          setSelectedPdf(pdfOption.value); // Set the value corresponding to the label
+        } else {
+          console.warn(`No PDF found for label: ${message.message}`);
+        }
+      } else if (message.type === "LANDMARK") {
+        console.log("Updating landmark with label:", message.message);
+        const landmarkOption = landmarkTypes.find((option) => option.label === message.message);
+        if (landmarkOption) {
+          setSelectedLandmarkType(landmarkOption.value); // Set the value corresponding to the label
+        } else {
+          console.warn(`No landmark found for label: ${message.message}`);
+        }
       } else {
         console.log("Unhandled message type:", message.type);
       }
@@ -168,10 +186,14 @@ export default function Sender() {
 
   if (currentScreen === SCREENS.PDF) {
     return (
-      <View style={styles.container}>
-        <Text>Subject ID: {subjectId}</Text>
-        <Button title="Begin" onPress={() => console.log("Begin Study")} />
-      </View>
+      <PdfRead
+        route={{
+          params: {
+            pdfUri: selectedPdf, // The selected PDF URI or path
+            landmarkType: selectedLandmarkType, // Selected landmark type
+          },
+        }}
+      />
     );
   }
 
