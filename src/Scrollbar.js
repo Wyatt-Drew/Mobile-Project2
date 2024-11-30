@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Animated, PanResponder, StyleSheet } from 'react-native';
+import { Animated, PanResponder, StyleSheet, View } from 'react-native';
 
 const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll }) => {
   const scrollbarVisibleHeight = visibleHeight * 0.8; // Only 80% of the visible height
@@ -42,31 +42,32 @@ const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll }) => 
   }, [scrollPosition, totalHeight, visibleHeight, scrollbarVisibleHeight, scrollbarHeight]);
 
   return (
-    <Animated.View
+    <View
       {...panResponder.panHandlers}
-      style={[styles.scrollbar, { height: scrollbarHeight, top: 0, transform: [{ translateY: pan }] }]}
-    />
+      style={[styles.touchableArea, { height: scrollbarVisibleHeight }]}
+    >
+      <Animated.View
+        style={[styles.scrollbar, { height: scrollbarHeight, transform: [{ translateY: pan }] }]}
+      />
+    </View>
   );
 };
 
 export default Scrollbar;
 
 const styles = StyleSheet.create({
+  touchableArea: {
+    position: 'absolute',
+    right: 5, // Adjust as needed to align visually
+    width: 40, // Expanded touchable area width
+    backgroundColor: 'transparent', // Keep it invisible
+    zIndex: 1, // Ensure it's on top
+  },
   scrollbar: {
     position: 'absolute',
     right: 10,
     width: 15,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     borderRadius: 5,
-  },
-  arrow: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 20,
-    height: 20,
-  },
-  arrowText: {
-    fontSize: 12,
-    color: 'rgba(0, 0, 0, 0.8)',
   },
 });
