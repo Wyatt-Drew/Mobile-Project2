@@ -158,10 +158,13 @@ export default function Sender() {
         {hasPermission === null && <Text>Requesting camera permission...</Text>}
         {hasPermission === false && <Text>No access to camera.</Text>}
         {hasPermission === true && (
-          <BarCodeScanner
-            onBarCodeScanned={handleBarCodeScanned}
-            style={StyleSheet.absoluteFillObject}
-          />
+            <>
+            <Text style={styles.title}>Scan QR code to pair</Text>
+            <BarCodeScanner
+                onBarCodeScanned={handleBarCodeScanned}
+                style={StyleSheet.absoluteFillObject}
+            />
+            </>
         )}
       </View>
     );
@@ -219,5 +222,13 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     borderRadius: 5,
     width: "80%",
+  },
+  title: {
+    position: 'absolute',
+    top: 50, // Adjust based on where you want the title
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'black',
+    textAlign: 'center',
   },
 });
