@@ -1,5 +1,6 @@
 import React from 'react';
-import { Animated, StyleSheet, Image } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
+import { TapGestureHandler } from 'react-native-gesture-handler';
 
 const customIcons = [
   require('../assets/icons/boat.png'),
@@ -15,21 +16,16 @@ const customIcons = [
 ];
 
 const customIconsColor = [
-
   require('../assets/icons/home.png'),
   require('../assets/icons/blue-screen.png'),
   require('../assets/icons/butterfly.png'),
-
   require('../assets/icons/sunny.png'),
   require('../assets/icons/star.png'),
-
   require('../assets/icons/fruit.png'),
   require('../assets/icons/green-energy.png'),
   require('../assets/icons/cabbage.png'),
-
   require('../assets/icons/dice.png'),
   require('../assets/icons/french-fries.png'),
-
 ];
 
 export const LandmarkType = {
@@ -41,16 +37,50 @@ export const LandmarkType = {
 };
 
 // Function to render a landmark based on type and index, with dynamic opacity
-export const renderLandmark = (type, index, opacity) => {
+export const renderLandmark = (type, index, opacity, onPress = () => {}) => {
   switch (type) {
     case LandmarkType.NUMBERS:
-      return <Animated.Text style={[styles.landmarkText, { opacity }]}>{index + 1}</Animated.Text>; // Numbers (1-10)
+      return (
+        <TapGestureHandler onHandlerStateChange={onPress}>
+          <View style={styles.touchArea}>
+            <Animated.Text style={[styles.landmarkText, { opacity }]}>
+              {index + 1}
+            </Animated.Text>
+          </View>
+        </TapGestureHandler>
+      ); // Numbers (1-10)
     case LandmarkType.LETTERS:
-      return <Animated.Text style={[styles.landmarkText, { opacity }]}>{String.fromCharCode(65 + index)}</Animated.Text>; // Letters (A-J)
+      return (
+        <TapGestureHandler onHandlerStateChange={onPress}>
+          <View style={styles.touchArea}>
+            <Animated.Text style={[styles.landmarkText, { opacity }]}>
+              {String.fromCharCode(65 + index)}
+            </Animated.Text>
+          </View>
+        </TapGestureHandler>
+      ); // Letters (A-J)
     case LandmarkType.ICONS:
-      return <Animated.Image source={customIcons[index]} style={[styles.icon, { opacity }]} />; // Default Icons
+      return (
+        <TapGestureHandler onHandlerStateChange={onPress}>
+          <View style={styles.touchArea}>
+            <Animated.Image
+              source={customIcons[index]}
+              style={[styles.icon, { opacity }]}
+            />
+          </View>
+        </TapGestureHandler>
+      ); // Default Icons
     case LandmarkType.COLOR_ICONS:
-      return <Animated.Image source={customIconsColor[index]} style={[styles.icon, { opacity }]} />; // Color Icons
+      return (
+        <TapGestureHandler onHandlerStateChange={onPress}>
+          <View style={styles.touchArea}>
+            <Animated.Image
+              source={customIconsColor[index]}
+              style={[styles.icon, { opacity }]}
+            />
+          </View>
+        </TapGestureHandler>
+      ); // Color Icons
     case LandmarkType.NONE:
       return null; // No icons
     default:
@@ -68,5 +98,10 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     marginVertical: 10,
+  },
+  touchArea: {
+    padding: 15, // Larger tappable area
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
