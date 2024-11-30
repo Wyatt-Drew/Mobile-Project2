@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Button, TextInput, StyleSheet } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
+import WaitingScreen from "./pages/WaitingScreen";
 
 const BACKEND_WS_URL = "wss://mobile-backend-74th.onrender.com";
 
@@ -8,6 +9,8 @@ const SCREENS = {
   SCAN_QR: 1,
   WAITING: 2,
   BEGIN: 3,
+  PDF: 4,
+  BLANK: 5,
 };
 
 export default function Sender() {
@@ -17,7 +20,6 @@ export default function Sender() {
   const [currentScreen, setCurrentScreen] = useState(SCREENS.SCAN_QR);
   const [subjectId, setSubjectId] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // For displaying WebSocket or other errors
-  const [customMessage, setCustomMessage] = useState(""); // For sending custom messages
   const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState([]);
 
@@ -136,23 +138,24 @@ export default function Sender() {
 
   if (currentScreen === SCREENS.WAITING) {
     return (
-        
-      <View style={styles.container}>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter a message..."
-            value={inputMessage}
-            onChangeText={setInputMessage}
-          />
-          <Button title="Send" onPress={() => sendMessage("custom", inputMessage)} />
-          
-        <Text>Awaiting Subject ID...</Text>
-        {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-      </View>
+        <WaitingScreen></WaitingScreen>
     );
   }
 
   if (currentScreen === SCREENS.BEGIN) {
+    return (
+      <View style={styles.container}>
+        <Text>Subject ID: {subjectId}</Text>
+        <Button title="Begin" onPress={() => {sendMessage("Begin", ""), setCurrentScreen(SCREENS.PDF) 
+
+
+    }
+        } />
+      </View>
+    );
+  }
+
+  if (currentScreen === SCREENS.PDF) {
     return (
       <View style={styles.container}>
         <Text>Subject ID: {subjectId}</Text>
@@ -161,6 +164,15 @@ export default function Sender() {
     );
   }
 
+
+  if (currentScreen === SCREENS.BLANK) {
+    return (
+      <View style={styles.container}>
+        <Text>Subject ID: {subjectId}</Text>
+        <Button title="Begin" onPress={() => console.log("Begin Study")} />
+      </View>
+    );
+  }
   return null;
 }
 
