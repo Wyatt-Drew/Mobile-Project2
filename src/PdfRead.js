@@ -65,7 +65,7 @@ const PdfRead = ({ route }) => {
   const getIconOpacity = (index) => {
     if (!isMaxScrollCaptured || maxScrollY === 0) return 0.3;
 
-    const sectionHeight = maxScrollY / 10;
+    const sectionHeight = (maxScrollY + usableHeight) / 10;
     const sectionMidpoint = index * sectionHeight + sectionHeight / 2;
     const distanceFromMidpoint = Math.abs(scrollPosition.y - sectionMidpoint);
 
