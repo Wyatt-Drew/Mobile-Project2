@@ -21,6 +21,10 @@ export default function Sender() {
   const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState([]);
 
+//setInputMessage
+//setInputMessageType
+//sendMessage
+
   useEffect(() => {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -97,22 +101,22 @@ export default function Sender() {
       setWs(null); // Reset WebSocket reference
     };
   };
-  const sendMessage = () => {
+  const sendMessage = (type, message) => {
     if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(
-        JSON.stringify({
-          type: "message",
-          sessionId,
-          sender: "Sender",
-          message: inputMessage,
-        })
-      );
-      setMessages((prev) => [...prev, `Self: ${inputMessage}`]);
-      setInputMessage("");
+      const payload = {
+        type,
+        sessionId,
+        sender: "Sender",
+        message,
+      };
+      ws.send(JSON.stringify(payload));
+      console.log("Sent message:", payload);
+      setMessages((prev) => [...prev, `Self: ${type} - ${message}`]);
     } else {
-      console.error("WebSocket is not connected.");
+      console.error("WebSocket is not connected or open.");
     }
   };
+  
 
   // Render screens based on current state
   if (currentScreen === SCREENS.SCAN_QR) {
@@ -140,7 +144,7 @@ export default function Sender() {
             value={inputMessage}
             onChangeText={setInputMessage}
           />
-          <Button title="Send" onPress={sendMessage} />
+          <Button title="Send" onPress={() => sendMessage("custom", inputMessage)} />
           
         <Text>Awaiting Subject ID...</Text>
         {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
@@ -152,13 +156,6 @@ export default function Sender() {
     return (
       <View style={styles.container}>
         <Text>Subject ID: {subjectId}</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter a custom message"
-          value={customMessage}
-          onChangeText={setCustomMessage}
-        />
-        <Button title="Send Message" onPress={sendMessage} />
         <Button title="Begin" onPress={() => console.log("Begin Study")} />
       </View>
     );
