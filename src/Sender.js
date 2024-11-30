@@ -4,7 +4,7 @@ import { BarCodeScanner } from "expo-barcode-scanner";
 import WaitingScreen from "./pages/WaitingScreen";
 
 const BACKEND_WS_URL = "wss://mobile-backend-74th.onrender.com";
-
+  
 const SCREENS = {
   SCAN_QR: 1,
   WAITING: 2,
@@ -12,6 +12,19 @@ const SCREENS = {
   PDF: 4,
   BLANK: 5,
 };
+
+const landmarkTypes = [
+    { label: 'No Icons', value: 'None' },
+    { label: 'Numbers (1-10)', value: 'Numbers' },
+    { label: 'Letters (A-J)', value: 'Letters' },
+    { label: 'Icons (Default)', value: 'Icons' },
+    { label: 'Color Icons', value: 'ColorIcons' },
+  ];
+  
+  const pdfOptions = [
+    { label: 'PDF1', value: require('../assets/pdf/PDF1.pdf') },
+  ];
+
 
 export default function Sender() {
   const [hasPermission, setHasPermission] = useState(null);
@@ -22,10 +35,10 @@ export default function Sender() {
   const [errorMessage, setErrorMessage] = useState(""); // For displaying WebSocket or other errors
   const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [selectedPdf, setSelectedPdf] = useState('');
+  const [selectedLandmarkType, setSelectedLandmarkType] = useState('');
+  
 
-//setInputMessage
-//setInputMessageType
-//sendMessage
 
   useEffect(() => {
     (async () => {
@@ -147,8 +160,6 @@ export default function Sender() {
       <View style={styles.container}>
         <Text>Subject ID: {subjectId}</Text>
         <Button title="Begin" onPress={() => {sendMessage("Begin", ""), setCurrentScreen(SCREENS.PDF) 
-
-
     }
         } />
       </View>
