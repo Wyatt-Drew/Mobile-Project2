@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     right: 5, // Adjust as needed to align visually
     width: 40, // Expanded touchable area width
     backgroundColor: 'transparent', // Keep it invisible
-    zIndex: 1, // Ensure it's on top
+    zIndex: 2, // Ensure it's on top
   },
   scrollbar: {
     position: 'absolute',

@@ -116,7 +116,7 @@ const PdfRead = ({ route }) => {
 
   if (!isMaxScrollCaptured) {
     return (
-      <View style={styles.container}>
+      <View style={styles.container} pointerEvents="box-none">
         <Pdf
           trustAllCerts={false}
           ref={pdfRef}
@@ -126,12 +126,15 @@ const PdfRead = ({ route }) => {
           onError={(error) => console.log(`PDF Error: ${error}`)}
           onScroll={(x, y) => handleScroll(x, y)}
         />
+  
+        {/* Invisible overlay to block interactions */}
+        <View style={styles.invisibleLayer} pointerEvents="box-only" />
       </View>
     );
   }
-
+  
   return (
-    <View style={styles.container}>
+    <View style={styles.container} pointerEvents="box-none">
       <Pdf
         ref={pdfRef}
         source={source}
@@ -140,7 +143,10 @@ const PdfRead = ({ route }) => {
         onError={(error) => console.log(`PDF Error: ${error}`)}
         onScroll={(x, y) => handleScroll(x, y)}
       />
-
+  
+      {/* Invisible overlay to block interactions */}
+      <View style={styles.invisibleLayer} pointerEvents="box-only" />
+  
       <View style={styles.landmarkContainer}>
         {[...Array(10)].map((_, index) => (
           <TouchableOpacity key={index} onPress={() => scrollToSection(index)}>
@@ -148,7 +154,7 @@ const PdfRead = ({ route }) => {
           </TouchableOpacity>
         ))}
       </View>
-
+  
       <Scrollbar
         scrollPosition={scrollPosition.y}
         totalHeight={maxScrollY + usableHeight}
@@ -178,6 +184,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     height: Dimensions.get('window').height * 1,
     padding: 0,
+    zIndex: 2,
   },
   invisibleLayer: {
     position: 'absolute',
@@ -185,6 +192,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'transparent', // Fully transparent to maintain the view
+    zIndex: 1, // Ensure the layer is above everything else
+    backgroundColor: 'transparent', // Invisible
   },
 });
