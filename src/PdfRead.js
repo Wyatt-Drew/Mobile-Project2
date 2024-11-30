@@ -9,9 +9,9 @@ const PdfRead = ({ route }) => {
   const pdfRef = useRef(null);
 
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 });
-  const [previousScrollPosition, setPreviousScrollPosition] = useState(0); // For incremental distance tracking
-  const [cumulativeDistance, setCumulativeDistance] = useState(0); // Total distance scrolled since last signal
-  const [signalPosition, setSignalPosition] = useState(0); // Tracks position at signal trigger
+  const [previousScrollPosition, setPreviousScrollPosition] = useState(0); 
+  const [cumulativeDistance, setCumulativeDistance] = useState(0);
+  const [signalPosition, setSignalPosition] = useState(0); 
   const [maxScrollY, setMaxScrollY] = useState(0);
   const [isMaxScrollCaptured, setIsMaxScrollCaptured] = useState(false);
 
@@ -56,9 +56,9 @@ const PdfRead = ({ route }) => {
   const scrollToSection = (index) => {
     if (!isMaxScrollCaptured || !maxScrollY) return;
     const sectionHeight = (maxScrollY + usableHeight) / 10;
-    const targetScrollY = (index + 0.5) * sectionHeight; // Scroll to the midpoint of each section
+    const targetScrollY = (index + 0.5) * sectionHeight; 
     if (pdfRef.current) {
-      pdfRef.current.moveTo(0, -targetScrollY, 1); // Scroll to the midpoint of the section
+      pdfRef.current.moveTo(0, -targetScrollY, 1); 
     }
   };
 
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 1, // Ensure the layer is above everything else
-    backgroundColor: 'transparent', // Invisible
+    zIndex: 1, 
+    backgroundColor: 'transparent', 
   },
 });

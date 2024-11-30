@@ -2,9 +2,9 @@ import React, { useRef, useEffect } from 'react';
 import { Animated, PanResponder, StyleSheet, View } from 'react-native';
 
 const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll }) => {
-  const scrollbarVisibleHeight = visibleHeight * 1; // Only 80% of the visible height
+  const scrollbarVisibleHeight = visibleHeight * 1; 
   const scrollbarHeight = totalHeight > scrollbarVisibleHeight
-    ? (scrollbarVisibleHeight * (scrollbarVisibleHeight / totalHeight))  // Proportional height
+    ? (scrollbarVisibleHeight * (scrollbarVisibleHeight / totalHeight))  
     : scrollbarVisibleHeight;
 
   const pan = useRef(new Animated.Value(0)).current;
@@ -58,10 +58,10 @@ export default Scrollbar;
 const styles = StyleSheet.create({
   touchableArea: {
     position: 'absolute',
-    right: 5, // Adjust as needed to align visually
+    right: 5, 
     width: 40, // Expanded touchable area width
-    backgroundColor: 'transparent', // Keep it invisible
-    zIndex: 2, // Ensure it's on top
+    backgroundColor: 'transparent', 
+    zIndex: 2, 
   },
   scrollbar: {
     position: 'absolute',
