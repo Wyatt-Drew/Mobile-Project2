@@ -18,10 +18,10 @@ const SCREENS = {
 
 const landmarkTypes = [
     { label: 'No Icons', value: 'None' },
-    { label: 'Numbers (1-10)', value: 'Numbers' },
-    { label: 'Letters (A-J)', value: 'Letters' },
-    { label: 'Icons (Default)', value: 'Icons' },
-    { label: 'Color Icons', value: 'ColorIcons' },
+    { label: 'Numbers', value: 'Numbers' },
+    { label: 'Letters', value: 'Letters' },
+    { label: 'Icons', value: 'Icons' },
+    { label: 'ColorIcons', value: 'ColorIcons' },
   ];
   
   const pdfOptions = [
