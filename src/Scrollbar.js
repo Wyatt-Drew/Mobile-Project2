@@ -14,9 +14,6 @@ const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll }) => 
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true, // Always start the responder
     onPanResponderGrant: (e, gestureState) => {
-      // Set up starting values when a new gesture begins
-      console.log("Gesture started at:", { y0: gestureState.y0, moveY: gestureState.moveY });
-  
       // Explicitly set the initial gesture position
       gestureState.y0 = gestureState.moveY;
       isDragging.current = false; // Reset dragging state
@@ -24,13 +21,6 @@ const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll }) => 
     onPanResponderMove: (e, gestureState) => {
       const dragThreshold = 5; // Minimum movement to consider it a drag
       const maxScrollPosition = totalHeight - scrollbarVisibleHeight;
-  
-      // If displacement is too small, treat it as a tap or small movement
-      if (Math.abs(gestureState.dy) < dragThreshold) {
-        console.log("Ignoring small movement:", gestureState.dy);
-        return;
-      }
-  
       // Mark dragging as active only after exceeding the threshold
       if (!isDragging.current) {
         console.log("Dragging started");
@@ -47,20 +37,12 @@ const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll }) => 
           0,
           Math.min(dragProportion * maxScrollPosition, maxScrollPosition)
         );
-  
-        console.log("Scroll updated during drag:", {
-          dragProportion,
-          newScrollPosition,
-          gestureState,
-        });
-  
         // Pass the calculated scroll position
         onScroll(newScrollPosition);
       }
     },
     onPanResponderRelease: () => {
       // Reset the state and end dragging when the gesture is complete
-      console.log("Gesture ended");
       isDragging.current = false;
     },
   });
