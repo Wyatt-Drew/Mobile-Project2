@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Animated, PanResponder, StyleSheet, View } from 'react-native';
 
-const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll }) => {
+const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll, onSingleTap }) => {
   const scrollbarVisibleHeight = visibleHeight * 1; 
   const scrollbarHeight = totalHeight > scrollbarVisibleHeight
     ? (scrollbarVisibleHeight * (scrollbarVisibleHeight / totalHeight))  
@@ -14,6 +14,7 @@ const Scrollbar = ({ scrollPosition, totalHeight, visibleHeight, onScroll }) => 
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true, // Always start the responder
     onPanResponderGrant: (e, gestureState) => {
+      onSingleTap?.();
       // Explicitly set the initial gesture position
       gestureState.y0 = gestureState.moveY;
       isDragging.current = false; // Reset dragging state

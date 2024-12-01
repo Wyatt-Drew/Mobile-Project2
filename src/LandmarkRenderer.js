@@ -37,31 +37,36 @@ export const LandmarkType = {
 };
 
 // Function to render a landmark based on type and index, with dynamic opacity
-export const renderLandmark = (type, index, opacity, onPress = () => {}) => {
+export const renderLandmark = (type, index, opacity, onPress = () => {}, onSingleTap) => {
+  const handleTap = () => {
+    onSingleTap?.();
+    onPress();
+  };
+
   switch (type) {
     case LandmarkType.NUMBERS:
       return (
-        <TapGestureHandler onHandlerStateChange={onPress}>
+        <TapGestureHandler onHandlerStateChange={handleTap}>
           <View style={styles.touchArea}>
             <Animated.Text style={[styles.landmarkText, { opacity }]}>
               {index + 1}
             </Animated.Text>
           </View>
         </TapGestureHandler>
-      ); // Numbers (1-10)
+      );
     case LandmarkType.LETTERS:
       return (
-        <TapGestureHandler onHandlerStateChange={onPress}>
+        <TapGestureHandler onHandlerStateChange={handleTap}>
           <View style={styles.touchArea}>
             <Animated.Text style={[styles.landmarkText, { opacity }]}>
               {String.fromCharCode(65 + index)}
             </Animated.Text>
           </View>
         </TapGestureHandler>
-      ); // Letters (A-J)
+      );
     case LandmarkType.ICONS:
       return (
-        <TapGestureHandler onHandlerStateChange={onPress}>
+        <TapGestureHandler onHandlerStateChange={handleTap}>
           <View style={styles.touchArea}>
             <Animated.Image
               source={customIcons[index]}
@@ -69,10 +74,10 @@ export const renderLandmark = (type, index, opacity, onPress = () => {}) => {
             />
           </View>
         </TapGestureHandler>
-      ); // Default Icons
+      );
     case LandmarkType.COLOR_ICONS:
       return (
-        <TapGestureHandler onHandlerStateChange={onPress}>
+        <TapGestureHandler onHandlerStateChange={handleTap}>
           <View style={styles.touchArea}>
             <Animated.Image
               source={customIconsColor[index]}
@@ -80,9 +85,9 @@ export const renderLandmark = (type, index, opacity, onPress = () => {}) => {
             />
           </View>
         </TapGestureHandler>
-      ); // Color Icons
+      );
     case LandmarkType.NONE:
-      return null; // No icons
+      return null;
     default:
       return null;
   }
