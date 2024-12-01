@@ -12,7 +12,6 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
   const [previousScrollPosition, setPreviousScrollPosition] = useState(0); 
   const [cumulativeDistance, setCumulativeDistance] = useState(0);
   const [tapCount, setTapCount] = useState(0);
-  const [signalPosition, setSignalPosition] = useState(0); 
   const [maxScrollY, setMaxScrollY] = useState(0);
   const [isMaxScrollCaptured, setIsMaxScrollCaptured] = useState(false);
 
@@ -31,7 +30,9 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
       const range = 100; // Allowable range in pixels
       if (Math.abs(scrollPosition.y - targetHeight) <= range) {
         console.log("Target height reached! Sending TARGETFOUND message...");
-        const metrics = `Taps: ${tapCount}, Distance: ${cumulativeDistance}`;
+        console.log(`Taps: ${tapCount}, Distance: ${cumulativeDistance}`)
+        const metrics = `${tapCount},${cumulativeDistance}`;
+        console.log("Metrics to send:", metrics);
         sendMessage("TARGETFOUND", metrics); // Use sendMessage from Sender
         // Reset counters after submitting
         setTapCount(0);
