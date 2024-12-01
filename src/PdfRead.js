@@ -4,7 +4,6 @@ import Pdf from '../libraries/react-native-pdf';
 import { renderLandmark } from './LandmarkRenderer';
 import Scrollbar from './Scrollbar';
 import { appendRow } from './components/googleSheetsService';
-import { TapGestureHandler } from "react-native-gesture-handler";
 
 const PdfRead = ({ sendMessage, route }) => {
   const { pdfUri, landmarkType, targetHeight, subjectId } = route.params;
@@ -29,6 +28,7 @@ const PdfRead = ({ sendMessage, route }) => {
   };
 
   const handleSubmit = async (sheetName, cumulativeDistance, tapCount) => {
+    return;
     try {
       const valuesArray = values.split(","); // Assuming values are comma-separated
       await appendRow(sheetName, valuesArray);
