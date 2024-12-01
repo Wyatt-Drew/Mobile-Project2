@@ -231,17 +231,18 @@ export default function Sender() {
 
   if (currentScreen === SCREENS.PDF) {
     return (
-      <PdfRead
-        sendMessage={sendMessage} // Pass the sendMessage function
+        <PdfRead
+        sendMessage={sendMessage}
         route={{
-          params: {
-            pdfUri: selectedPdf, // The selected PDF URI or path
-            landmarkType: selectedLandmarkType, // Selected landmark type
-            targetHeight: targetHeight, // Pass target height
-            subjectId: subjectId, // Pass Subject ID
-          },
+            params: {
+            pdfUri: selectedPdf,
+            landmarkType: selectedLandmarkType,
+            targetHeight: targetHeight,
+            subjectId: subjectId,
+            },
         }}
-      />
+        setTargetHeight={setTargetHeight}
+        />
     );
   }
 

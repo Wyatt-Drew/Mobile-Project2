@@ -3,9 +3,8 @@ import React, { useRef, useState, useEffect } from 'react';
 import Pdf from '../libraries/react-native-pdf';
 import { renderLandmark } from './LandmarkRenderer';
 import Scrollbar from './Scrollbar';
-import { appendRow } from './components/googleSheetsService';
 
-const PdfRead = ({ sendMessage, route }) => {
+const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
   const { pdfUri, landmarkType, targetHeight, subjectId } = route.params;
   const pdfRef = useRef(null);
 
@@ -27,31 +26,17 @@ const PdfRead = ({ sendMessage, route }) => {
     console.log("Screen tapped! Total tap count:", tapCount + 1);
   };
 
-  const handleSubmit = async (sheetName, cumulativeDistance, tapCount) => {
-    return;
-    try {
-      const valuesArray = values.split(","); // Assuming values are comma-separated
-      await appendRow(sheetName, valuesArray);
-      alert("Row appended successfully!");
-    } catch (error) {
-      alert("Failed to append row.");
-    }
-  };
-  
   useEffect(() => {
     if (targetHeight !== null) {
       const range = 100; // Allowable range in pixels
       if (Math.abs(scrollPosition.y - targetHeight) <= range) {
         console.log("Target height reached! Sending TARGETFOUND message...");
-        const message = `Taps: ${tapCount}, Distance: ${cumulativeDistance}`;
-        sendMessage("TARGETFOUND", message); // Use sendMessage from Sender
-  
-        // Append data to the sheet
-        handleSubmit();
-  
+        const metrics = `Taps: ${tapCount}, Distance: ${cumulativeDistance}`;
+        sendMessage("TARGETFOUND", metrics); // Use sendMessage from Sender
         // Reset counters after submitting
         setTapCount(0);
         setCumulativeDistance(0);
+        setTargetHeight(null);
       }
     }
   }, [scrollPosition, targetHeight]);
