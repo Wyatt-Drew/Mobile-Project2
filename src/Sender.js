@@ -41,7 +41,6 @@ const targetHeights = [
     { label: 'target23', value: '53989' },
     { label: 'target24', value: '10153' },
     { label: 'target25', value: '22070' },
-    { label: 'NULL', value: '-9999999' },
 ];
 
 const landmarkTypes = [
@@ -73,6 +72,7 @@ export default function Sender() {
   const [selectedPdf, setSelectedPdf] = useState('');
   const [selectedLandmarkType, setSelectedLandmarkType] = useState('');
   const [targetHeight, setTargetHeight] = useState(null);
+
 
 
   useEffect(() => {
@@ -245,7 +245,6 @@ export default function Sender() {
       />
     );
   }
-
 
   if (currentScreen === SCREENS.BLANK) {
     return (

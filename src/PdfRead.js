@@ -142,39 +142,36 @@ const PdfRead = ({ sendMessage, route }) => {
   }
   
   return (
-    <TapGestureHandler onActivated={handleSingleTap}>
-      <View style={styles.container} pointerEvents="box-none">
-        <Pdf
-          ref={pdfRef}
-          source={source}
-          style={styles.pdf}
-          onLoadComplete={onLoadComplete}
-          onError={(error) => console.log(`PDF Error: ${error}`)}
-          onScroll={(x, y) => handleScroll(x, y)}
-        />
-
-        {/* Invisible overlay to block interactions */}
-        <View style={styles.invisibleLayer} pointerEvents="box-only" />
-
-        <View style={styles.landmarkContainer}>
-          {[...Array(10)].map((_, index) => (
-            <TouchableOpacity key={index} onPress={() => scrollToSection(index)}>
-              {renderLandmark(landmarkType, index, getIconOpacity(index))}
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <Scrollbar
-          scrollPosition={scrollPosition.y}
-          totalHeight={maxScrollY + usableHeight}
-          visibleHeight={usableHeight}
-          onScroll={handleScrollbarScroll}
-        />
+    <View style={styles.container} pointerEvents="box-none">
+      <Pdf
+        ref={pdfRef}
+        source={source}
+        style={styles.pdf}
+        onLoadComplete={onLoadComplete}
+        onError={(error) => console.log(`PDF Error: ${error}`)}
+        onScroll={(x, y) => handleScroll(x, y)}
+      />
+  
+      {/* Invisible overlay to block interactions */}
+      <View style={styles.invisibleLayer} pointerEvents="box-only" />
+  
+      <View style={styles.landmarkContainer}>
+        {[...Array(10)].map((_, index) => (
+          <TouchableOpacity key={index} onPress={() => scrollToSection(index)}>
+            {renderLandmark(landmarkType, index, getIconOpacity(index))}
+          </TouchableOpacity>
+        ))}
       </View>
-    </TapGestureHandler>
+  
+      <Scrollbar
+        scrollPosition={scrollPosition.y}
+        totalHeight={maxScrollY + usableHeight}
+        visibleHeight={usableHeight}
+        onScroll={handleScrollbarScroll}
+      />
+    </View>
   );
 };
-
 
 export default PdfRead;
 
