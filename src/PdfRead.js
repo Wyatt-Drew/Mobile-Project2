@@ -6,7 +6,6 @@ import Scrollbar from './Scrollbar';
 import { appendRow } from './components/googleSheetsService';
 import { TapGestureHandler } from "react-native-gesture-handler";
 
-
 const PdfRead = ({ sendMessage, route }) => {
   const { pdfUri, landmarkType, targetHeight, subjectId } = route.params;
   const pdfRef = useRef(null);
@@ -28,6 +27,33 @@ const PdfRead = ({ sendMessage, route }) => {
     setTapCount((prev) => prev + 1);
     console.log("Screen tapped! Total tap count:", tapCount + 1);
   };
+
+  const handleSubmit = async (sheetName, cumulativeDistance, tapCount) => {
+    try {
+      const valuesArray = values.split(","); // Assuming values are comma-separated
+      await appendRow(sheetName, valuesArray);
+      alert("Row appended successfully!");
+    } catch (error) {
+      alert("Failed to append row.");
+    }
+  };
+  
+  useEffect(() => {
+    if (targetHeight !== null) {
+      const range = 100; // Allowable range in pixels
+      if (Math.abs(scrollPosition.y - targetHeight) <= range) {
+        console.log("Target height reached! Sending TARGETFOUND message...");
+        sendMessage("TARGETFOUND", "Target reached"); // Use sendMessage from Sender
+  
+        // Append data to the sheet
+        handleSubmit();
+  
+        // Reset counters after submitting
+        setTapCount(0);
+        setCumulativeDistance(0);
+      }
+    }
+  }, [scrollPosition, targetHeight]);
 
   const handleScroll = (x, y) => {
     const normalizedScrollY = Math.max(0, Math.abs(y));
@@ -91,36 +117,6 @@ const PdfRead = ({ sendMessage, route }) => {
       pdfRef.current.moveTo(0, -newY, 1);
     }
   };
-
-  // Debug log the current scroll height every second
-  useEffect(() => {
-    const logHeightInterval = setInterval(() => {
-      console.log(`Current Scroll Height: ${scrollPosition.y}`);
-    }, 1000);
-
-    return () => clearInterval(logHeightInterval);
-  }, [scrollPosition]);
-
-  // Log cumulative distance scrolled every second
-  useEffect(() => {
-    const logDistanceInterval = setInterval(() => {
-      console.log(`Cumulative Distance Scrolled Since Signal: ${cumulativeDistance}`);
-    }, 1000);
-
-    return () => clearInterval(logDistanceInterval);
-  }, [cumulativeDistance]);
-
-  // Trigger a signal every 10 seconds and log the position
-  useEffect(() => {
-    const signalInterval = setInterval(() => {
-      setSignalPosition(scrollPosition.y); // Update signal position
-      console.log(`Signal Triggered at Position: ${scrollPosition.y}`);
-      console.log(`Total Distance Scrolled Since Last Signal: ${cumulativeDistance}`);
-      setCumulativeDistance(0); // Reset cumulative distance after the signal
-    }, 10000);
-
-    return () => clearInterval(signalInterval);
-  }, [scrollPosition, cumulativeDistance]);
 
   if (!isMaxScrollCaptured) {
     return (
