@@ -153,14 +153,16 @@ const PdfRead = ({ sendMessage, route }) => {
   
       <View style={styles.landmarkContainer}>
       {[...Array(10)].map((_, index) => (
-        renderLandmark(
+      <React.Fragment key={`landmark-${index}`}>
+        {renderLandmark(
           landmarkType,
           index,
           getIconOpacity(index),
           () => scrollToSection(index),
           handleSingleTap
-        )
-      ))}
+        )}
+      </React.Fragment>
+    ))}
     </View>
   
       <Scrollbar
