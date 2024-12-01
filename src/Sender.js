@@ -15,6 +15,33 @@ const SCREENS = {
   BLANK: 5,
 };
 
+const targetHeights = [
+    { label: 'target1', value: '4928' },
+    { label: 'target2', value: '7333' },
+    { label: 'target3', value: '17951' },
+    { label: 'target4', value: '33056' },
+    { label: 'target5', value: '42057' },
+    { label: 'target6', value: '12213' },
+    { label: 'target7', value: '24302' },
+    { label: 'target8', value: '45318' },
+    { label: 'target9', value: '55765' },
+    { label: 'target10', value: '3218' },
+    { label: 'target11', value: '4315' },
+    { label: 'target12', value: '19593' },
+    { label: 'target13', value: '28251' },
+    { label: 'target14', value: '44189' },
+    { label: 'target15', value: '53215' },
+    { label: 'target16', value: '12297' },
+    { label: 'target17', value: '24988' },
+    { label: 'target18', value: '30762' },
+    { label: 'target19', value: '44116' },
+    { label: 'target20', value: '54073' },
+    { label: 'target21', value: '35460' },
+    { label: 'target22', value: '43086' },
+    { label: 'target23', value: '53989' },
+    { label: 'target24', value: '10153' },
+    { label: 'target25', value: '22070' },
+];
 
 const landmarkTypes = [
     { label: 'No Icons', value: 'None' },
@@ -26,6 +53,11 @@ const landmarkTypes = [
   
   const pdfOptions = [
     { label: 'PDF1', value: require('../assets/pdf/PDF1.pdf') },
+    { label: 'PDF2', value: require('../assets/pdf/PDF2.pdf') },
+    { label: 'PDF3', value: require('../assets/pdf/PDF3.pdf') },
+    { label: 'PDF4', value: require('../assets/pdf/PDF4.pdf') },
+    { label: 'PDF5', value: require('../assets/pdf/PDF5.pdf') },
+    { label: 'PDF6', value: require('../assets/pdf/PDF6.pdf') },
   ];
 
 export default function Sender() {
