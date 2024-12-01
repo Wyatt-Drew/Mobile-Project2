@@ -71,6 +71,8 @@ export default function Sender() {
   const [selectedPdf, setSelectedPdf] = useState('');
   const [selectedLandmarkType, setSelectedLandmarkType] = useState('');
   const [targetHeight, setTargetHeight] = useState(null);
+  const [targetLabel, setTargetLabel] = useState('');
+  const [pdfLabel, setPdfLabel] = useState("");
 
 
 
@@ -137,6 +139,7 @@ export default function Sender() {
         const pdfOption = pdfOptions.find((option) => option.label === message.message);
         if (pdfOption) {
           setSelectedPdf(pdfOption.value); // Set the value corresponding to the label
+          setPdfLabel(message.message)
         } else {
           console.warn(`No PDF found for label: ${message.message}`);
         }
@@ -153,6 +156,7 @@ export default function Sender() {
         const targetOption = targetHeights.find((option) => option.label === message.message);
         if (targetOption) {
           setTargetHeight(targetOption.value); // Set the height corresponding to the target
+          setTargetLabel(message.message)
           console.log("Target height set to:", targetOption.value);
         } else {
           console.warn(`No height found for target: ${message.message}`);
@@ -239,6 +243,8 @@ export default function Sender() {
             landmarkType: selectedLandmarkType,
             targetHeight: targetHeight,
             subjectId: subjectId,
+            pdfLabel: pdfLabel,
+            targetLabel: targetLabel,
             },
         }}
         setTargetHeight={setTargetHeight}

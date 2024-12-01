@@ -5,7 +5,7 @@ import { renderLandmark } from './LandmarkRenderer';
 import Scrollbar from './Scrollbar';
 
 const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
-  const { pdfUri, landmarkType, targetHeight, subjectId } = route.params;
+  const { pdfUri, landmarkType, targetHeight, subjectId, pdfLabel, targetLabel } = route.params;
   const pdfRef = useRef(null);
 
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 });
@@ -30,8 +30,9 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
       const range = 100; // Allowable range in pixels
       if (Math.abs(scrollPosition.y - targetHeight) <= range) {
         console.log("Target height reached! Sending TARGETFOUND message...");
+
         console.log(`Taps: ${tapCount}, Distance: ${cumulativeDistance}`)
-        const metrics = `${tapCount},${cumulativeDistance}`;
+        const metrics = `${ subjectId},${pdfLabel},${targetLabel},${landmarkType},${tapCount},${cumulativeDistance}`;
         console.log("Metrics to send:", metrics);
         sendMessage("TARGETFOUND", metrics); // Use sendMessage from Sender
         // Reset counters after submitting
