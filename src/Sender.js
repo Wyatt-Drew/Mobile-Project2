@@ -57,7 +57,6 @@ const landmarkTypes = [
     { label: 'PDF3', value: require('../assets/pdf/PDF3.pdf') },
     { label: 'PDF4', value: require('../assets/pdf/PDF4.pdf') },
     { label: 'PDF5', value: require('../assets/pdf/PDF5.pdf') },
-    { label: 'PDF6', value: require('../assets/pdf/PDF6.pdf') },
   ];
 
 export default function Sender() {

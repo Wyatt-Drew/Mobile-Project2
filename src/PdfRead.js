@@ -43,7 +43,8 @@ const PdfRead = ({ sendMessage, route }) => {
       const range = 100; // Allowable range in pixels
       if (Math.abs(scrollPosition.y - targetHeight) <= range) {
         console.log("Target height reached! Sending TARGETFOUND message...");
-        sendMessage("TARGETFOUND", "Target reached"); // Use sendMessage from Sender
+        const message = `Taps: ${tapCount}, Distance: ${cumulativeDistance}`;
+        sendMessage("TARGETFOUND", message); // Use sendMessage from Sender
   
         // Append data to the sheet
         handleSubmit();
