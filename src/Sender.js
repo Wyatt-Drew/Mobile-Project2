@@ -41,6 +41,7 @@ const targetHeights = [
     { label: 'target23', value: '53989' },
     { label: 'target24', value: '10153' },
     { label: 'target25', value: '22070' },
+    { label: 'NULL', value: '-9999999' },
 ];
 
 const landmarkTypes = [
@@ -71,7 +72,7 @@ export default function Sender() {
   const [messages, setMessages] = useState([]);
   const [selectedPdf, setSelectedPdf] = useState('');
   const [selectedLandmarkType, setSelectedLandmarkType] = useState('');
-  
+  const [targetHeight, setTargetHeight] = useState(null);
 
 
   useEffect(() => {
@@ -148,6 +149,16 @@ export default function Sender() {
         } else {
           console.warn(`No landmark found for label: ${message.message}`);
         }
+    } else if (message.type === "TARGET") {
+        console.log("Updating target with label:", message.message);
+        const targetOption = targetHeights.find((option) => option.label === message.message);
+        if (targetOption) {
+          setTargetHeight(targetOption.value); // Set the height corresponding to the target
+          console.log("Target height set to:", targetOption.value);
+        } else {
+          console.warn(`No height found for target: ${message.message}`);
+        }
+
       } else {
         console.log("Unhandled message type:", message.type);
       }
