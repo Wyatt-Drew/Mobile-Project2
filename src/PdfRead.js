@@ -3,14 +3,18 @@ import React, { useRef, useState, useEffect } from 'react';
 import Pdf from '../libraries/react-native-pdf';
 import { renderLandmark } from './LandmarkRenderer';
 import Scrollbar from './Scrollbar';
+import { appendRow } from './components/googleSheetsService';
+import { TapGestureHandler } from "react-native-gesture-handler";
 
-const PdfRead = ({ route }) => {
-  const { pdfUri, landmarkType } = route.params;
+
+const PdfRead = ({ sendMessage, route }) => {
+  const { pdfUri, landmarkType, targetHeight, subjectId } = route.params;
   const pdfRef = useRef(null);
 
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 });
   const [previousScrollPosition, setPreviousScrollPosition] = useState(0); 
   const [cumulativeDistance, setCumulativeDistance] = useState(0);
+  const [tapCount, setTapCount] = useState(0);
   const [signalPosition, setSignalPosition] = useState(0); 
   const [maxScrollY, setMaxScrollY] = useState(0);
   const [isMaxScrollCaptured, setIsMaxScrollCaptured] = useState(false);
@@ -20,6 +24,10 @@ const PdfRead = ({ route }) => {
   const usableHeight = windowHeight - statusBarHeight;
 
   const source = typeof pdfUri === 'string' ? { uri: pdfUri, cache: true } : pdfUri;
+  const handleSingleTap = () => {
+    setTapCount((prev) => prev + 1);
+    console.log("Screen tapped! Total tap count:", tapCount + 1);
+  };
 
   const handleScroll = (x, y) => {
     const normalizedScrollY = Math.max(0, Math.abs(y));
@@ -134,36 +142,39 @@ const PdfRead = ({ route }) => {
   }
   
   return (
-    <View style={styles.container} pointerEvents="box-none">
-      <Pdf
-        ref={pdfRef}
-        source={source}
-        style={styles.pdf}
-        onLoadComplete={onLoadComplete}
-        onError={(error) => console.log(`PDF Error: ${error}`)}
-        onScroll={(x, y) => handleScroll(x, y)}
-      />
-  
-      {/* Invisible overlay to block interactions */}
-      <View style={styles.invisibleLayer} pointerEvents="box-only" />
-  
-      <View style={styles.landmarkContainer}>
-        {[...Array(10)].map((_, index) => (
-          <TouchableOpacity key={index} onPress={() => scrollToSection(index)}>
-            {renderLandmark(landmarkType, index, getIconOpacity(index))}
-          </TouchableOpacity>
-        ))}
+    <TapGestureHandler onActivated={handleSingleTap}>
+      <View style={styles.container} pointerEvents="box-none">
+        <Pdf
+          ref={pdfRef}
+          source={source}
+          style={styles.pdf}
+          onLoadComplete={onLoadComplete}
+          onError={(error) => console.log(`PDF Error: ${error}`)}
+          onScroll={(x, y) => handleScroll(x, y)}
+        />
+
+        {/* Invisible overlay to block interactions */}
+        <View style={styles.invisibleLayer} pointerEvents="box-only" />
+
+        <View style={styles.landmarkContainer}>
+          {[...Array(10)].map((_, index) => (
+            <TouchableOpacity key={index} onPress={() => scrollToSection(index)}>
+              {renderLandmark(landmarkType, index, getIconOpacity(index))}
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <Scrollbar
+          scrollPosition={scrollPosition.y}
+          totalHeight={maxScrollY + usableHeight}
+          visibleHeight={usableHeight}
+          onScroll={handleScrollbarScroll}
+        />
       </View>
-  
-      <Scrollbar
-        scrollPosition={scrollPosition.y}
-        totalHeight={maxScrollY + usableHeight}
-        visibleHeight={usableHeight}
-        onScroll={handleScrollbarScroll}
-      />
-    </View>
+    </TapGestureHandler>
   );
 };
+
 
 export default PdfRead;
 
