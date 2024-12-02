@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, TextInput, StyleSheet } from "react-native";
+import { View, Text, Button, TextInput, StyleSheet , TouchableOpacity } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import WaitingScreen from "./pages/WaitingScreen";
 import PdfRead from "./PdfRead";
@@ -233,10 +233,16 @@ export default function Sender() {
   if (currentScreen === SCREENS.BEGIN) {
     return (
       <View style={styles.container}>
-        <Text>Subject ID: {subjectId}</Text>
-        <Button title="Begin" onPress={() => {sendMessage("Begin", ""), setCurrentScreen(SCREENS.PDF) 
-    }
-        } />
+        <Text style={styles.subjectText}>Subject ID: {subjectId}</Text>
+        <TouchableOpacity
+          style={styles.bigButton}
+          onPress={() => {
+            sendMessage("Begin", "");
+            setCurrentScreen(SCREENS.PDF);
+          }}
+        >
+          <Text style={styles.buttonText}>Begin</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -289,11 +295,30 @@ const styles = StyleSheet.create({
     width: "80%",
   },
   title: {
-    position: 'absolute',
+    position: "absolute",
     top: 50, // Adjust based on where you want the title
     fontSize: 18,
-    fontWeight: 'bold',
-    color: 'black',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "black",
+    textAlign: "center",
+  },
+  subjectText: {
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  bigButton: {
+    backgroundColor: "#007bff",
+    paddingVertical: 20,
+    paddingHorizontal: 40,
+    borderRadius: 10,
+    marginTop: 20,
+    alignItems: "center",
+    fontSize: 30,
+    fontWeight: "bold",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });

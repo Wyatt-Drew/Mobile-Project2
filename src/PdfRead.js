@@ -60,9 +60,9 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
   useEffect(() => {
     
     if (targetHeight !== null) {
-      console.log("TargetHeight is ", targetHeight);
-      console.log("Target Label is ", targetLabel)
-      console.log("CurrentHeight", scrollPosition.y );
+      // console.log("TargetHeight is ", targetHeight);
+      // console.log("Target Label is ", targetLabel)
+      // console.log("CurrentHeight", scrollPosition.y );
       const range = 506; // Allowable range in pixels of PDF
       if (Math.abs(scrollPosition.y - targetHeight) <= range) {
         if (Date.now() - lastTargetTime < 2000) {
@@ -84,7 +84,7 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
 
       }
     }else{
-      console.log("TargetHeight is NULL");
+      // console.log("TargetHeight is NULL");
     }
   }, [scrollPosition, targetHeight]);
 
