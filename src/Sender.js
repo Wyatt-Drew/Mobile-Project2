@@ -42,6 +42,7 @@ const targetHeights = [
     { label: 'target23', value: '23332.22' },
     { label: 'target24', value: '4387.78' },
     { label: 'target25', value: '9537.91' },
+    { label: 'none', value: 'NULL' },
 ];
 
 
