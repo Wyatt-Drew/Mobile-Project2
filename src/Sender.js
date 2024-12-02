@@ -13,6 +13,7 @@ const SCREENS = {
   BEGIN: 3,
   PDF: 4,
   BLANK: 5,
+  BLACKSCREEN:6,
 };
 
 const targetHeights = [
@@ -161,6 +162,9 @@ export default function Sender() {
         } else {
           console.warn(`No height found for target: ${message.message}`);
         }
+    } else if (message.type === "START") {
+        setCurrentScreen(SCREENS.PDF)
+        console.log("Start recieved");
 
       } else {
         console.log("Unhandled message type:", message.type);
@@ -251,7 +255,11 @@ export default function Sender() {
         />
     );
   }
-
+  if (currentScreen === SCREENS.BLACKSCREEN) {
+    return (
+<div></div>
+    );
+  }
   if (currentScreen === SCREENS.BLANK) {
     return (
       <View style={styles.container}>
