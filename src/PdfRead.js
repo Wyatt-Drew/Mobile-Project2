@@ -27,7 +27,8 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
 
   useEffect(() => {
     if (targetHeight !== null) {
-      const range = 100; // Allowable range in pixels
+      //55800/25 pages /2 = 1171 = about half a page
+      const range = 1171; // Allowable range in pixels
       if (Math.abs(scrollPosition.y - targetHeight) <= range) {
         console.log("Target height reached! Sending TARGETFOUND message...");
 

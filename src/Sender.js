@@ -162,6 +162,10 @@ export default function Sender() {
         } else {
           console.warn(`No height found for target: ${message.message}`);
         }
+    } else if (message.type === "BLACKSCREEN") {
+        setCurrentScreen(SCREENS.BLACKSCREEN)
+        console.log("Blackscreen recieved");
+
     } else if (message.type === "START") {
         setCurrentScreen(SCREENS.PDF)
         console.log("Start recieved");
@@ -257,7 +261,9 @@ export default function Sender() {
   }
   if (currentScreen === SCREENS.BLACKSCREEN) {
     return (
-<div></div>
+        <View style={styles.container}>
+
+      </View>
     );
   }
   if (currentScreen === SCREENS.BLANK) {
