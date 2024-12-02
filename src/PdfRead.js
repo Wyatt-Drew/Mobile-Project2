@@ -18,7 +18,8 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
   const windowHeight = Dimensions.get('window').height;
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 20;
   const usableHeight = windowHeight - statusBarHeight;
-
+  const [lastTargetTime, setLastTargetTime] = useState(0); 
+  
   const source = typeof pdfUri === 'string' ? { uri: pdfUri, cache: true } : pdfUri;
   const handleSingleTap = () => {
     setTapCount((prev) => prev + 1);
@@ -26,10 +27,17 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
   };
 
   useEffect(() => {
+    
     if (targetHeight !== null) {
-      //55800/25 pages /2 = 1171 = about half a page
-      const range = 1171; // Allowable range in pixels
+      console.log("TargetHeight is ", targetHeight);
+      console.log("Target Label is ", targetLabel)
+      console.log("CurrentHeight", scrollPosition.y );
+      const range = 506; // Allowable range in pixels of PDF
       if (Math.abs(scrollPosition.y - targetHeight) <= range) {
+        if (Date.now() - lastTargetTime < 2000) {
+          console.log("Ignored duplicate target within 0.2 seconds");
+          return; // Ignore duplicate target found within 0.2 seconds
+        }
         console.log("Target height reached! Sending TARGETFOUND message...");
 
         console.log(`Taps: ${tapCount}, Distance: ${cumulativeDistance}`)
@@ -39,7 +47,8 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
         // Reset counters after submitting
         setTapCount(0);
         setCumulativeDistance(0);
-        setTargetHeight(null);
+        // setTargetHeight(null);
+        setLastTargetTime(Date.now());
       }
     }else{
       console.log("TargetHeight is NULL");

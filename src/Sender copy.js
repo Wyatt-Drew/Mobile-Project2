@@ -17,33 +17,32 @@ const SCREENS = {
 };
 
 const targetHeights = [
-    { label: 'target1', value: '2129.71' },
-    { label: 'target2', value: '3169.07' },
-    { label: 'target3', value: '7757.81' },
-    { label: 'target4', value: '14285.68' },
-    { label: 'target5', value: '18175.61' },
-    { label: 'target6', value: '10502.5' },
-    { label: 'target7', value: '10502.5' },
-    { label: 'target8', value: '19584.9' },
-    { label: 'target9', value: '24099.74' },
-    { label: 'target10', value: '1390.71' },
-    { label: 'target11', value: '1864.8' },
-    { label: 'target12', value: '8467.43' },
-    { label: 'target13', value: '12209.12' },
-    { label: 'target14', value: '19096.99' },
-    { label: 'target15', value: '22997.72' },
-    { label: 'target16', value: '5314.35' },
-    { label: 'target17', value: '10798.97' },
-    { label: 'target18', value: '13294.29' },
-    { label: 'target19', value: '19065.44' },
-    { label: 'target20', value: '23368.52' },
-    { label: 'target21', value: '15324.61' },
-    { label: 'target22', value: '18620.31' },
-    { label: 'target23', value: '23332.22' },
-    { label: 'target24', value: '4387.78' },
-    { label: 'target25', value: '9537.91' },
+    { label: 'target1', value: '4928' },
+    { label: 'target2', value: '7333' },
+    { label: 'target3', value: '17951' },
+    { label: 'target4', value: '33056' },
+    { label: 'target5', value: '42057' },
+    { label: 'target6', value: '12213' },
+    { label: 'target7', value: '24302' },
+    { label: 'target8', value: '45318' },
+    { label: 'target9', value: '55765' },
+    { label: 'target10', value: '3218' },
+    { label: 'target11', value: '4315' },
+    { label: 'target12', value: '19593' },
+    { label: 'target13', value: '28251' },
+    { label: 'target14', value: '44189' },
+    { label: 'target15', value: '53215' },
+    { label: 'target16', value: '12297' },
+    { label: 'target17', value: '24988' },
+    { label: 'target18', value: '30762' },
+    { label: 'target19', value: '44116' },
+    { label: 'target20', value: '54073' },
+    { label: 'target21', value: '35460' },
+    { label: 'target22', value: '43086' },
+    { label: 'target23', value: '53989' },
+    { label: 'target24', value: '10153' },
+    { label: 'target25', value: '22070' },
 ];
-
 
 const landmarkTypes = [
     { label: 'No Icons', value: 'None' },
@@ -155,13 +154,18 @@ export default function Sender() {
         }
     } else if (message.type === "TARGET") {
         console.log("Updating target with label:", message.message);
+
+        // Find the target based on the label
         const targetOption = targetHeights.find((option) => option.label === message.message);
+    
         if (targetOption) {
-          setTargetHeight(targetOption.value); // Set the height corresponding to the target
-          setTargetLabel(message.message)
-          console.log("Target height set to:", targetOption.value);
-        } else {
-          console.warn(`No height found for target: ${message.message}`);
+            setTargetHeight(targetOption.value); // Set the height corresponding to the target
+            setTargetLabel(message.message);
+            console.log("Target height set to:", targetOption.value);
+    
+            // Send ACK with the label as the acknowledgment message
+            console.log("Sending ACK for TARGET:", message.message);
+            sendMessage("ACK", message.message);
         }
     } else if (message.type === "BLACKSCREEN") {
         setCurrentScreen(SCREENS.BLACKSCREEN)
