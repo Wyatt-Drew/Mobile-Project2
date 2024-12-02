@@ -233,7 +233,7 @@ export default function Sender() {
   if (currentScreen === SCREENS.BEGIN) {
     return (
       <View style={styles.container}>
-        <Text style={styles.subjectText}>Subject ID: {subjectId}</Text>
+        
         <TouchableOpacity
           style={styles.bigButton}
           onPress={() => {
@@ -243,6 +243,7 @@ export default function Sender() {
         >
           <Text style={styles.buttonText}>Begin</Text>
         </TouchableOpacity>
+        <Text style={styles.subjectText}>Subject ID: {subjectId}</Text>
       </View>
     );
   }

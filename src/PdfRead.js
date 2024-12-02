@@ -3,8 +3,6 @@ import React, { useRef, useState, useEffect } from 'react';
 import Pdf from '../libraries/react-native-pdf';
 import { renderLandmark } from './LandmarkRenderer';
 import Scrollbar from './Scrollbar';
-import Sound from 'react-native-sound';
-
 
 const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
   const { pdfUri, landmarkType, targetHeight, subjectId, pdfLabel, targetLabel } = route.params;
@@ -16,8 +14,6 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
   const [tapCount, setTapCount] = useState(0);
   const [maxScrollY, setMaxScrollY] = useState(0);
   const [isMaxScrollCaptured, setIsMaxScrollCaptured] = useState(false);
-  let sound;
-  //const audio = new Audio('../assets/confirmation.mp3')
 
   const windowHeight = Dimensions.get('window').height;
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 20;
@@ -28,33 +24,6 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
   const handleSingleTap = () => {
     setTapCount((prev) => prev + 1);
     console.log("Screen tapped! Total tap count:", tapCount + 1);
-  };
-
-  useEffect(() => {
-    // Load the audio file
-    sound = new Sound(require('../assets/confirmation.mp3'), (error) => {
-      if (error) {
-        console.log('Failed to load sound', error);
-        return;
-      }
-      console.log('Sound loaded successfully');
-    });
-  
-    return () => {
-      if (sound) {
-        sound.release(); // Release the sound resource when unmounting
-      }
-    };
-  }, []);
-  
-  const playSound = () => {
-    if (sound) {
-      sound.play((success) => {
-        if (!success) {
-          console.log('Sound playback failed');
-        }
-      });
-    }
   };
 
   useEffect(() => {
@@ -80,7 +49,6 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
         setCumulativeDistance(0);
         // setTargetHeight(null);
         setLastTargetTime(Date.now());
-        playSound(); 
 
       }
     }else{
