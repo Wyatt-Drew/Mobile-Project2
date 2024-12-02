@@ -41,6 +41,8 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
         setCumulativeDistance(0);
         setTargetHeight(null);
       }
+    }else{
+      console.log("TargetHeight is NULL");
     }
   }, [scrollPosition, targetHeight]);
 
