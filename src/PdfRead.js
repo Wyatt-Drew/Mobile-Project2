@@ -40,8 +40,8 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
         }
         console.log("Target height reached! Sending TARGETFOUND message...");
 
-        console.log(`Taps: ${tapCount}, Distance: ${cumulativeDistance}`)
-        const metrics = `${ subjectId},${pdfLabel},${targetLabel},${landmarkType},${tapCount},${cumulativeDistance}`;
+        console.log(`Taps: ${tapCount}, Distance: ${cumulativeDistance}`);
+        const metrics = `${subjectId},${pdfLabel},${targetLabel},${landmarkType},${tapCount},${cumulativeDistance}`;
         console.log("Metrics to send:", metrics);
         sendMessage("TARGETFOUND", metrics); // Use sendMessage from Sender
         // Reset counters after submitting
@@ -49,6 +49,7 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
         setCumulativeDistance(0);
         // setTargetHeight(null);
         setLastTargetTime(Date.now());
+
       }
     }else{
       console.log("TargetHeight is NULL");

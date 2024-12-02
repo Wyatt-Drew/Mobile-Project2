@@ -22,7 +22,7 @@ const targetHeights = [
     { label: 'target3', value: '7757.81' },
     { label: 'target4', value: '14285.68' },
     { label: 'target5', value: '18175.61' },
-    { label: 'target6', value: '10502.5' },
+    { label: 'target6', value: '5276' },
     { label: 'target7', value: '10502.5' },
     { label: 'target8', value: '19584.9' },
     { label: 'target9', value: '24099.74' },
