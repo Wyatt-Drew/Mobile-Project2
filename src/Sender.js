@@ -68,7 +68,6 @@ export default function Sender() {
   const [currentScreen, setCurrentScreen] = useState(SCREENS.SCAN_QR);
   const [subjectId, setSubjectId] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // For displaying WebSocket or other errors
-  const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [selectedPdf, setSelectedPdf] = useState('');
   const [selectedLandmarkType, setSelectedLandmarkType] = useState('');

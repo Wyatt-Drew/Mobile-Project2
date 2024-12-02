@@ -7,6 +7,7 @@ import { StatusBar } from 'react-native';
 import { LogBox } from 'react-native';
 LogBox.ignoreLogs([
   'BarCodeScanner has been deprecated', // The warning message to suppress
+  'No height found',
 ]);
 const Stack = createStackNavigator();
 
