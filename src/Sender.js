@@ -63,18 +63,31 @@ const landmarkTypes = [
   ];
 
 export default function Sender() {
-  const [hasPermission, setHasPermission] = useState(null);
-  const [sessionId, setSessionId] = useState("");
-  const [ws, setWs] = useState(null);
-  const [currentScreen, setCurrentScreen] = useState(SCREENS.SCAN_QR);
-  const [subjectId, setSubjectId] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // For displaying WebSocket or other errors
-  const [messages, setMessages] = useState([]);
-  const [selectedPdf, setSelectedPdf] = useState('');
-  const [selectedLandmarkType, setSelectedLandmarkType] = useState('');
-  const [targetHeight, setTargetHeight] = useState(null);
-  const [targetLabel, setTargetLabel] = useState('');
-  const [pdfLabel, setPdfLabel] = useState("");
+// UseState - best used for variables that do not cross components
+const [subjectId, setSubjectId] = useState("");
+const [errorMessage, setErrorMessage] = useState(""); 
+const [messages, setMessages] = useState([]);
+const [currentScreen, setCurrentScreen] = useState(SCREENS.SCAN_QR); //Only accessed in Sender.js
+const [selectedPdf, setSelectedPdf] = useState('');
+const [selectedLandmarkType, setSelectedLandmarkType] = useState('');
+const [targetHeight, setTargetHeight] = useState(null);
+const [targetLabel, setTargetLabel] = useState('');
+const [pdfLabel, setPdfLabel] = useState("");
+
+//UseRef - best used for not part of UI rendering
+const [ws, setWs] = useState(null);
+const [sessionId, setSessionId] = useState("");
+const [hasPermission, setHasPermission] = useState(null);
+
+//Redux - best used for global state management.
+// This is not needed since components are modified in sender and then passed to children
+
+
+
+
+
+
+
 
 
 
