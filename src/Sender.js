@@ -184,9 +184,7 @@ const [hasPermission, setHasPermission] = useState(null);
         setCurrentScreen(SCREENS.PDF)
         console.log("Start recieved");
 
-      } else {
-        console.log("Unhandled message type:", message.type);
-      }
+      } 
     };
 
     socket.onclose = () => {
