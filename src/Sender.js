@@ -82,15 +82,6 @@ const [hasPermission, setHasPermission] = useState(null);
 //Redux - best used for global state management.
 // This is not needed since components are modified in sender and then passed to children
 
-
-
-
-
-
-
-
-
-
   useEffect(() => {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -112,6 +103,7 @@ const [hasPermission, setHasPermission] = useState(null);
   const connectToSession = (scannedSessionId) => {
     console.log("Connecting to session:", scannedSessionId);
 
+    let retryCount = 0; 
     // Avoid duplicate WebSocket connections
     if (ws) {
       console.warn("WebSocket already exists.");
@@ -122,6 +114,7 @@ const [hasPermission, setHasPermission] = useState(null);
 
     socket.onopen = () => {
       console.log("WebSocket connection opened.");
+      retryCount = 0; 
       setWs(socket);
 
       // Register with the backend
@@ -144,7 +137,7 @@ const [hasPermission, setHasPermission] = useState(null);
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
       console.log("Message received:", message);
-
+      
       if (message.type === "subjectId") {
         console.log("Subject ID received:", message.message);
         setSubjectId(message.message); // Save Subject ID
@@ -189,15 +182,24 @@ const [hasPermission, setHasPermission] = useState(null);
 
     socket.onclose = () => {
       console.log("WebSocket connection closed.");
-      setErrorMessage("WebSocket connection closed.");
+      // setErrorMessage("WebSocket connection closed.");
       setWs(null); // Reset WebSocket reference
-      setCurrentScreen(SCREENS.SCAN_QR); // Reset to scanning
+      if (retryCount < 5)
+        {
+          retryCount++;
+          connectToSession(scannedSessionId);
+        }
     };
 
     socket.onerror = (err) => {
       console.error("WebSocket error:", err);
       setErrorMessage("WebSocket error. Please retry.");
       setWs(null); // Reset WebSocket reference
+      if (retryCount < 5)
+        {
+          retryCount++;
+          connectToSession(scannedSessionId);
+        }
     };
   };
   const sendMessage = (type, message) => {
