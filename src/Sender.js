@@ -187,19 +187,12 @@ const [hasPermission, setHasPermission] = useState(null);
       if (retryCount < 5)
         {
           retryCount++;
-          connectToSession(scannedSessionId);
+          setTimeout(() => connectToSession(scannedSessionId), 1000); 
         }
     };
 
     socket.onerror = (err) => {
       console.error("WebSocket error:", err);
-      setErrorMessage("WebSocket error. Please retry.");
-      setWs(null); // Reset WebSocket reference
-      if (retryCount < 5)
-        {
-          retryCount++;
-          connectToSession(scannedSessionId);
-        }
     };
   };
   const sendMessage = (type, message) => {
