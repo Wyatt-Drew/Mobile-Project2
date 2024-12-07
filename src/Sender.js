@@ -47,11 +47,11 @@ const targetHeights = [
 
 
 const landmarkTypes = [
-    { label: 'No Icons', value: 'None' },
+    { label: 'No Landmarks', value: 'No Landmarks' },
     { label: 'Numbers', value: 'Numbers' },
     { label: 'Letters', value: 'Letters' },
     { label: 'Icons', value: 'Icons' },
-    { label: 'ColorIcons', value: 'ColorIcons' },
+    { label: 'Colored Icons', value: 'Colored Icons' },
   ];
   
   const pdfOptions = [

@@ -32,8 +32,8 @@ export const LandmarkType = {
   NUMBERS: 'Numbers',
   LETTERS: 'Letters',
   ICONS: 'Icons',
-  COLOR_ICONS: 'ColorIcons',
-  NONE: 'None',
+  COLOR_ICONS: 'Colored Icons',
+  NONE: 'No Landmarks',
 };
 
 // Function to render a landmark based on type and index, with dynamic opacity
