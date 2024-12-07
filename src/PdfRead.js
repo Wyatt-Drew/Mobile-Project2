@@ -4,14 +4,12 @@ import Pdf from '../libraries/react-native-pdf';
 import { renderLandmark } from './LandmarkRenderer';
 import Scrollbar from './Scrollbar';
 
-const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
+const PdfRead = ({ sendMessage, route, tapCount, setTapCount, cumulativeDistance, setCumulativeDistance, newTask, setTargetHeight }) => {
   const { pdfUri, landmarkType, targetHeight, subjectId, pdfLabel, targetLabel } = route.params;
   const pdfRef = useRef(null);
 
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 });
   const [previousScrollPosition, setPreviousScrollPosition] = useState(0); 
-  const [cumulativeDistance, setCumulativeDistance] = useState(0);
-  const [tapCount, setTapCount] = useState(0);
   const [maxScrollY, setMaxScrollY] = useState(0);
   const [isMaxScrollCaptured, setIsMaxScrollCaptured] = useState(false);
 
@@ -45,8 +43,7 @@ const PdfRead = ({ sendMessage, route, setTargetHeight }) => {
         console.log("Metrics to send:", metrics);
         sendMessage("TARGETFOUND", metrics); // Use sendMessage from Sender
         // Reset counters after submitting
-        setTapCount(0);
-        setCumulativeDistance(0);
+        newTask();
         // setTargetHeight(null);
         setLastTargetTime(Date.now());
 

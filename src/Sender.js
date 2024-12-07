@@ -65,7 +65,6 @@ const landmarkTypes = [
 export default function Sender() {
 // UseState - best used for variables that do not cross components
 const [subjectId, setSubjectId] = useState("");
-const [errorMessage, setErrorMessage] = useState(""); 
 const [messages, setMessages] = useState([]);
 const [currentScreen, setCurrentScreen] = useState(SCREENS.SCAN_QR); //Only accessed in Sender.js
 const [selectedPdf, setSelectedPdf] = useState('');
@@ -73,6 +72,8 @@ const [selectedLandmarkType, setSelectedLandmarkType] = useState('');
 const [targetHeight, setTargetHeight] = useState(null);
 const [targetLabel, setTargetLabel] = useState('');
 const [pdfLabel, setPdfLabel] = useState("");
+const [tapCount, setTapCount] = useState(0);
+const [cumulativeDistance, setCumulativeDistance] = useState(0);
 
 //UseRef - best used for not part of UI rendering
 const [ws, setWs] = useState(null);
@@ -81,6 +82,12 @@ const [hasPermission, setHasPermission] = useState(null);
 
 //Redux - best used for global state management.
 // This is not needed since components are modified in sender and then passed to children
+
+const newTask = () => {
+  console.log("New task started. Resetting tap count and cumulative distance.");
+  setTapCount(0);
+  setCumulativeDistance(0);
+};
 
   useEffect(() => {
     (async () => {
@@ -165,6 +172,7 @@ const [hasPermission, setHasPermission] = useState(null);
         if (targetOption) {
           setTargetHeight(targetOption.value); // Set the height corresponding to the target
           setTargetLabel(message.message)
+          newTask();
           console.log("Target height set to:", targetOption.value);
         } else {
           console.warn(`No height found for target: ${message.message}`);
@@ -269,6 +277,11 @@ const [hasPermission, setHasPermission] = useState(null);
             targetLabel: targetLabel,
             },
         }}
+        tapCount={tapCount}
+        setTapCount={setTapCount} 
+        cumulativeDistance={cumulativeDistance}
+        setCumulativeDistance={setCumulativeDistance}
+        newTask={newTask} 
         setTargetHeight={setTargetHeight}
         />
     );
