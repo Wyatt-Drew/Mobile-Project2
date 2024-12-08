@@ -1,6 +1,6 @@
 import React from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
-import { TapGestureHandler } from 'react-native-gesture-handler';
+import { TapGestureHandler, State } from 'react-native-gesture-handler';
 
 const customIcons = [
   require('../assets/icons/boat.png'),
@@ -38,9 +38,12 @@ export const LandmarkType = {
 
 // Function to render a landmark based on type and index, with dynamic opacity
 export const renderLandmark = (type, index, opacity, onPress = () => {}, onSingleTap) => {
-  const handleTap = () => {
-    onSingleTap?.();
-    onPress();
+  const handleTap = (event) => {
+    if (event.nativeEvent?.state === State.END) {
+      // Only handle the gesture when the tap is fully complete
+      onSingleTap?.();
+      onPress();
+    }
   };
 
   switch (type) {
